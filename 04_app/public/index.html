@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Reserva de Salas · LM</title>
+  <meta name="color-scheme" content="light dark">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Host+Grotesk:wght@400;500;600;700;800&display=swap">
+  <link rel="icon" href="logo.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="styles.css">
+  <script>
+    // Aplica el tema guardado antes de pintar (evita parpadeo)
+    try {
+      const t = localStorage.getItem('tema') || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+      document.documentElement.dataset.theme = t;
+    } catch { /* sin almacenamiento */ }
+  </script>
+</head>
+<body>
+  <div class="app" id="app">
+    <aside class="sidebar" id="sidebar" aria-label="Navegación principal">
+      <a class="marca" href="#inicio" aria-label="Reserva de Salas, ir al inicio">
+        <svg class="logo" viewBox="0 0 40 40" aria-hidden="true">
+          <!-- Puerta construida con facetas (magenta, lima, petróleo) y pomo morado -->
+          <path d="M9 4h22L9 21z" fill="#E0156A"/>
+          <path d="M31 4v32L9 21z" fill="#CCED00"/>
+          <path d="M9 21l22 15H9z" fill="#14A3A1"/>
+          <circle cx="24.5" cy="21.5" r="2.4" fill="#4A1760"/>
+        </svg>
+        <span class="marca-texto"><strong>Reserva de Salas</strong><small>Konrad Lorenz</small></span>
+      </a>
+      <nav id="menu"></nav>
+      <div class="sidebar-pie">
+        <div class="estado-bd"><span class="punto" id="puntoBd"></span><span id="textoBd">Conectando con Oracle</span></div>
+        <p>Proyecto académico de Bases de Datos, grupo Lara y Malagón</p>
+      </div>
+    </aside>
+
+    <div class="principal">
+      <header class="topbar">
+        <button class="btn-icono solo-movil" id="btnMenu" aria-label="Abrir menú" aria-controls="sidebar" aria-expanded="false">
+          <svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+        </button>
+        <div class="migas" id="migas"></div>
+        <div class="topbar-der">
+          <div class="campo-usuario" id="cajaUsuario">
+            <svg class="ic ic-sm" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>
+            <label for="usuarioApp">Usuario</label>
+            <input id="usuarioApp" placeholder="ej. jlara" maxlength="60" autocomplete="username" aria-describedby="ayudaUsuario">
+            <span id="ayudaUsuario" class="sr-only">Se guarda en la auditoría como la persona que hace cada cambio</span>
+          </div>
+          <button class="btn-icono" id="btnTema" aria-label="Cambiar a modo oscuro"></button>
+        </div>
+      </header>
+      <main id="vista" class="vista" tabindex="-1"></main>
+    </div>
+  </div>
+
+  <dialog id="dlg" aria-labelledby="dlgTitulo">
+    <form id="frm" method="dialog" novalidate>
+      <div class="dlg-cab">
+        <h2 id="dlgTitulo"></h2>
+        <button type="button" class="btn-icono" id="btnCerrar" aria-label="Cerrar">
+          <svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg>
+        </button>
+      </div>
+      <div class="dlg-cuerpo">
+        <div id="resumenErrores" class="resumen-errores" tabindex="-1" role="alert" aria-labelledby="resumenTitulo" hidden></div>
+        <div id="campos" class="campos"></div>
+        <div id="dlgError" class="alerta error" role="alert" hidden></div>
+      </div>
+      <div class="dlg-pie">
+        <button type="button" class="btn btn-sec" id="btnCancelar">Cancelar</button>
+        <button type="submit" class="btn btn-pri" id="btnGuardar">Guardar</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="dlgConfirmar" class="dlg-confirmar" aria-labelledby="confTitulo" aria-describedby="confTexto">
+    <div class="dlg-cuerpo">
+      <span class="ico-peligro" aria-hidden="true">
+        <svg class="ic ic-lg" viewBox="0 0 24 24"><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
+      </span>
+      <div>
+        <h2 id="confTitulo" style="margin:0;font-size:17px">Eliminar registro</h2>
+        <p id="confTexto"></p>
+      </div>
+    </div>
+    <div class="dlg-pie">
+      <button type="button" class="btn btn-sec" id="confNo">Cancelar</button>
+      <button type="button" class="btn btn-peligro" id="confSi">Eliminar</button>
+    </div>
+  </dialog>
+
+  <div class="toasts" id="toasts" role="status" aria-live="polite"></div>
+  <script src="app.js"></script>
+</body>
+</html>

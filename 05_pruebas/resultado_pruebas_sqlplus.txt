@@ -1,0 +1,260 @@
+﻿
+SQL*Plus: Release 23.26.4.0.0 - Production on Jue Nov 19 22:50:52 2026
+Version 23.26.4.0.0
+
+Copyright (c) 1982, 2026, Oracle.  All rights reserved.
+
+Hora de �ltima Conexi�n Correcta: Jue Nov 19 2026 22:50:52 -05:00
+
+Conectado a:
+Oracle AI Database 26ai Free Release 23.26.4.0.0 - Develop, Learn, and Run for Free
+Version 23.26.4.0.0
+
+
+Sesi�n modificada.
+
+
+Procedimiento PL/SQL terminado correctamente.
+
+
+===== P1. INSERT validos (deben quedar auditados como INSERT) =====
+
+1 fila creada.
+
+
+1 fila creada.
+
+
+1 fila creada.
+
+
+Confirmaci�n terminada.
+
+
+===== P2. UPDATE (debe guardar datos anteriores, nuevos y columnas modificadas) =====
+
+1 fila actualizada.
+
+
+1 fila actualizada.
+
+
+1 fila actualizada.
+
+
+Confirmaci�n terminada.
+
+
+===== P3. DELETE (debe guardar el registro borrado) =====
+
+1 fila suprimida.
+
+
+1 fila suprimida.
+
+
+Confirmaci�n terminada.
+
+
+===== P4. Restricciones: cada sentencia DEBE FALLAR =====
+-- 4.1 Email invalido (CK_USUARIO_EMAIL)
+INSERT INTO USUARIO (DOCUMENTO, NOMBRES, APELLIDOS, EMAIL, TIPO_USUARIO, ID_FACULTAD)
+*
+ERROR en l�nea 1:
+ORA-02290: restricci�n de control (LM_RESERVASALAS.CK_USUARIO_EMAIL) violada
+Ayuda: https://docs.oracle.com/error-help/db/ora-02290/
+
+
+-- 4.2 Documento duplicado (UQ_USUARIO_DOCUMENTO)
+INSERT INTO USUARIO (DOCUMENTO, NOMBRES, APELLIDOS, EMAIL, TIPO_USUARIO, ID_FACULTAD)
+*
+ERROR en l�nea 1:
+ORA-00001: Se ha violado la restricci�n �nica (LM_RESERVASALAS.UQ_USUARIO_DOCUMENTO) para la tabla LM_RESERVASALAS.USUARIO en las columnas (DOCUMENTO)
+ORA-03301: (Detalles de ORA-00001) ya existe la fila con los valores de columna (DOCUMENTO:'79845123')
+Ayuda: https://docs.oracle.com/error-help/db/ora-00001/
+
+
+-- 4.3 Tipo de usuario no permitido (CK_USUARIO_TIPO)
+INSERT INTO USUARIO (DOCUMENTO, NOMBRES, APELLIDOS, EMAIL, TIPO_USUARIO, ID_FACULTAD)
+*
+ERROR en l�nea 1:
+ORA-02290: restricci�n de control (LM_RESERVASALAS.CK_USUARIO_TIPO) violada
+Ayuda: https://docs.oracle.com/error-help/db/ora-02290/
+
+
+-- 4.4 Facultad inexistente (FK_USUARIO_FACULTAD)
+INSERT INTO USUARIO (DOCUMENTO, NOMBRES, APELLIDOS, EMAIL, TIPO_USUARIO, ID_FACULTAD)
+*
+ERROR en l�nea 1:
+ORA-02291: restricci�n de integridad (LM_RESERVASALAS.FK_USUARIO_FACULTAD) violada - clave principal no encontrada
+Ayuda: https://docs.oracle.com/error-help/db/ora-02291/
+
+
+-- 4.5 Borrar edificio con espacios (FK_ESPACIO_EDIFICIO)
+DELETE FROM EDIFICIO WHERE ID_EDIFICIO = 1
+*
+ERROR en l�nea 1:
+ORA-02292: restricci�n de integridad (LM_RESERVASALAS.FK_ESPACIO_EDIFICIO) violada - registro secundario encontrado
+Ayuda: https://docs.oracle.com/error-help/db/ora-02292/
+
+
+-- 4.6 Fecha fin antes que inicio (CK_RESERVA_FECHAS)
+INSERT INTO RESERVA (ID_USUARIO, ID_ESPACIO, FECHA_INICIO, FECHA_FIN, NUM_ASISTENTES, MOTIVO)
+*
+ERROR en l�nea 1:
+ORA-02290: restricci�n de control (LM_RESERVASALAS.CK_RESERVA_FECHAS) violada
+Ayuda: https://docs.oracle.com/error-help/db/ora-02290/
+
+
+-- 4.7 Horario de edificio invalido (CK_EDIFICIO_HORAS)
+UPDATE EDIFICIO SET HORA_APERTURA = 23, HORA_CIERRE = 5 WHERE ID_EDIFICIO = 2
+*
+ERROR en l�nea 1:
+ORA-02290: restricci�n de control (LM_RESERVASALAS.CK_EDIFICIO_HORAS) violada
+Ayuda: https://docs.oracle.com/error-help/db/ora-02290/
+
+
+
+===== P5. Reglas de negocio de RESERVA: cada sentencia DEBE FALLAR =====
+-- 5.1 Doble reserva: cruza con la reserva 6 (Aula 201, 2026-11-24 08:00-10:00)
+INSERT INTO RESERVA (ID_USUARIO, ID_ESPACIO, FECHA_INICIO, FECHA_FIN, NUM_ASISTENTES, MOTIVO)
+            *
+ERROR en l�nea 1:
+ORA-20001: Doble reserva: el espacio ya esta reservado en ese horario (cruce con la reserva 6).
+ORA-06512: en "LM_RESERVASALAS.TRG_RESERVA_REGLAS", l�nea 15
+ORA-04088: error durante la ejecuci�n del disparador 'LM_RESERVASALAS.TRG_RESERVA_REGLAS'
+
+
+-- 5.2 Supera la capacidad (cabina de 1 persona)
+INSERT INTO RESERVA (ID_USUARIO, ID_ESPACIO, FECHA_INICIO, FECHA_FIN, NUM_ASISTENTES, MOTIVO)
+            *
+ERROR en l�nea 1:
+ORA-20002: La reserva 22 supera la capacidad del espacio.
+ORA-06512: en "LM_RESERVASALAS.TRG_RESERVA_REGLAS", l�nea 25
+ORA-04088: error durante la ejecuci�n del disparador 'LM_RESERVASALAS.TRG_RESERVA_REGLAS'
+
+
+-- 5.3 Supera el maximo de horas (cabina: 2 h)
+INSERT INTO RESERVA (ID_USUARIO, ID_ESPACIO, FECHA_INICIO, FECHA_FIN, NUM_ASISTENTES, MOTIVO)
+            *
+ERROR en l�nea 1:
+ORA-20003: La reserva 23 supera el maximo de horas permitido para ese tipo de espacio.
+ORA-06512: en "LM_RESERVASALAS.TRG_RESERVA_REGLAS", l�nea 37
+ORA-04088: error durante la ejecuci�n del disparador 'LM_RESERVASALAS.TRG_RESERVA_REGLAS'
+
+
+-- 5.4 Fuera del horario del edificio (Biblioteca abre a las 7)
+INSERT INTO RESERVA (ID_USUARIO, ID_ESPACIO, FECHA_INICIO, FECHA_FIN, NUM_ASISTENTES, MOTIVO)
+            *
+ERROR en l�nea 1:
+ORA-20004: La reserva 24 esta fuera del horario de apertura del edificio.
+ORA-06512: en "LM_RESERVASALAS.TRG_RESERVA_REGLAS", l�nea 50
+ORA-04088: error durante la ejecuci�n del disparador 'LM_RESERVASALAS.TRG_RESERVA_REGLAS'
+
+
+-- 5.5 Espacio en mantenimiento (B12-602)
+INSERT INTO RESERVA (ID_USUARIO, ID_ESPACIO, FECHA_INICIO, FECHA_FIN, NUM_ASISTENTES, MOTIVO)
+            *
+ERROR en l�nea 1:
+ORA-20005: La reserva 25 usa un espacio no disponible o un usuario inactivo.
+ORA-06512: en "LM_RESERVASALAS.TRG_RESERVA_REGLAS", l�nea 63
+ORA-04088: error durante la ejecuci�n del disparador 'LM_RESERVASALAS.TRG_RESERVA_REGLAS'
+
+
+-- 5.6 Usuario inactivo (id 14)
+INSERT INTO RESERVA (ID_USUARIO, ID_ESPACIO, FECHA_INICIO, FECHA_FIN, NUM_ASISTENTES, MOTIVO)
+            *
+ERROR en l�nea 1:
+ORA-20005: La reserva 26 usa un espacio no disponible o un usuario inactivo.
+ORA-06512: en "LM_RESERVASALAS.TRG_RESERVA_REGLAS", l�nea 63
+ORA-04088: error durante la ejecuci�n del disparador 'LM_RESERVASALAS.TRG_RESERVA_REGLAS'
+
+
+-- 5.7 Reserva contigua a la 7 (esa termina 12:00, esta inicia 12:00): DEBE FUNCIONAR
+
+1 fila creada.
+
+
+Confirmaci�n terminada.
+
+
+===== P6. Transaccion deshecha: ROLLBACK tambien deshace su auditoria =====
+
+1 fila creada.
+
+
+Rollback terminado.
+
+
+AUDITORIA_RECURSO_TEMPORAL
+--------------------------
+			 0
+
+1 fila seleccionada.
+
+
+===== P7. La auditoria no se puede alterar: DEBE FALLAR =====
+UPDATE AUDITORIA SET OPERACION = 'INSERT' WHERE ROWNUM = 1
+       *
+ERROR en l�nea 1:
+ORA-20102: Los registros de auditoria no se pueden modificar ni eliminar (use PKG_AUDITORIA.PURGAR).
+ORA-06512: en "LM_RESERVASALAS.TRG_AUDITORIA_PROTEGER", l�nea 3
+ORA-04088: error durante la ejecuci�n del disparador 'LM_RESERVASALAS.TRG_AUDITORIA_PROTEGER'
+
+
+DELETE FROM AUDITORIA WHERE ROWNUM = 1
+            *
+ERROR en l�nea 1:
+ORA-20102: Los registros de auditoria no se pueden modificar ni eliminar (use PKG_AUDITORIA.PURGAR).
+ORA-06512: en "LM_RESERVASALAS.TRG_AUDITORIA_PROTEGER", l�nea 3
+ORA-04088: error durante la ejecuci�n del disparador 'LM_RESERVASALAS.TRG_AUDITORIA_PROTEGER'
+
+
+
+Rollback terminado.
+
+
+===== P8. Resultado: ultimos registros de auditoria =====
+
+ID_AUDITORIA FECHA_HORA 	     TABLA	      OPERACION ID_REGISTR QUIEN	      COLUMNAS_MODIFICADAS
+------------ ----------------------- ---------------- --------- ---------- ------------------ ----------------------------
+	   1 2026-11-19 22:50:53.078 FACULTAD	      INSERT	13	   pruebas_sqlplus
+	   2 2026-11-19 22:50:53.086 USUARIO	      INSERT	15	   pruebas_sqlplus
+	   3 2026-11-19 22:50:53.091 RESERVA	      INSERT	19	   pruebas_sqlplus
+	   4 2026-11-19 22:50:53.152 RESERVA	      UPDATE	19	   pruebas_sqlplus    ESTADO,OBSERVACION
+	   5 2026-11-19 22:50:53.160 ESPACIO	      UPDATE	1	   pruebas_sqlplus    CAPACIDAD
+	   6 2026-11-19 22:50:53.189 ESPACIO_RECURSO  DELETE	14-1	   pruebas_sqlplus
+	   7 2026-11-19 22:50:53.195 FACULTAD	      DELETE	13	   pruebas_sqlplus
+	  16 2026-11-19 22:50:53.315 RESERVA	      INSERT	27	   pruebas_sqlplus
+
+8 filas seleccionadas.
+
+
+ID_AUDITORIA OPERACION DATOS_ANTERIORES
+------------ --------- ------------------------------------------------------------------------------------------
+DATOS_NUEVOS
+------------------------------------------------------------------------------------------
+	   4 UPDATE    {"ID_RESERVA":19,"ID_USUARIO":3,"ID_ESPACIO":7,"FECHA_INICIO":"2026-12-09T09:00:00","FECHA
+		       _FIN":"2026-12-09T11:00:00","NUM_ASISTENTES":1,"MOTIVO":"Prueba de reserva de cabina","EST
+		       ADO":"PENDIENTE","FECHA_CREACION":"2026-11-19T22:50:53","OBSERVACION":null}
+{"ID_RESERVA":19,"ID_USUARIO":3,"ID_ESPACIO":7,"FECHA_INICIO":"2026-12-09T09:00:00","FECHA
+_FIN":"2026-12-09T11:00:00","NUM_ASISTENTES":1,"MOTIVO":"Prueba de reserva de cabina","EST
+ADO":"CONFIRMADA","FECHA_CREACION":"2026-11-19T22:50:53","OBSERVACION":"Aprobada por biene
+star"}
+
+
+1 fila seleccionada.
+
+
+DIA		 TABLA		  INSERCIONES ACTUALIZACIONES ELIMINACIONES	 TOTAL
+---------------- ---------------- ----------- --------------- ------------- ----------
+2026-11-19 00:00 ESPACIO		    0		    1		  0	     1
+2026-11-19 00:00 ESPACIO_RECURSO	    0		    0		  1	     1
+2026-11-19 00:00 FACULTAD		    1		    0		  1	     2
+2026-11-19 00:00 RESERVA		    2		    1		  0	     3
+2026-11-19 00:00 USUARIO		    1		    0		  0	     1
+
+5 filas seleccionadas.
+
+Desconectado de Oracle AI Database 26ai Free Release 23.26.4.0.0 - Develop, Learn, and Run for Free
+Version 23.26.4.0.0

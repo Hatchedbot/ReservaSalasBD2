@@ -1,0 +1,15 @@
+{
+  "name": "lm-reservasalas-web",
+  "version": "1.0.0",
+  "description": "CRUD web y reporte de auditoria - Sistema de Reserva de Salas Universitario (Oracle)",
+  "main": "src/server.js",
+  "private": true,
+  "scripts": {
+    "start": "node src/server.js"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.5",
+    "express": "^4.21.2",
+    "oracledb": "^6.7.0"
+  }
+}

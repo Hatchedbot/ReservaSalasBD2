@@ -1,0 +1,439 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>LM_ReservaSalas - Documento del proyecto</title>
+<style>
+  @page { size: A4; margin: 18mm 16mm; }
+  :root { --pri: #1f4e79; --suave: #5f6b7a; --borde: #d6dee7; }
+  body { font-family: "Segoe UI", Arial, sans-serif; font-size: 11pt; color: #1d2733; line-height: 1.45; }
+  h1 { color: var(--pri); font-size: 20pt; margin: 0 0 6px; }
+  h2 { color: var(--pri); font-size: 15pt; border-bottom: 2px solid var(--pri); padding-bottom: 3px; margin-top: 26px; break-after: avoid; }
+  h3 { color: var(--pri); font-size: 12pt; margin: 16px 0 6px; break-after: avoid; }
+  p, li { text-align: justify; }
+  table { width: 100%; border-collapse: collapse; margin: 8px 0 12px; font-size: 9.5pt; break-inside: auto; }
+  th { background: var(--pri); color: #fff; text-align: left; padding: 5px 7px; }
+  td { border-bottom: 1px solid var(--borde); padding: 4px 7px; vertical-align: top; }
+  tr:nth-child(even) td { background: #f6f9fc; }
+  pre { background: #f3f6f9; border: 1px solid var(--borde); border-left: 4px solid var(--pri); padding: 8px 10px;
+        font-family: Consolas, monospace; font-size: 8.3pt; white-space: pre-wrap; word-break: break-word; break-inside: avoid; }
+  pre.term { background: #0f1b2a; color: #d8e6f3; border-left-color: #4a9be0; }
+  code { font-family: Consolas, monospace; font-size: 9.5pt; background: #eef2f6; padding: 0 3px; border-radius: 3px; }
+  figure { margin: 10px 0 16px; break-inside: avoid; text-align: center; }
+  figure img { max-width: 100%; border: 1px solid var(--borde); }
+  figcaption { font-size: 9pt; color: var(--suave); margin-top: 4px; }
+  .ok { color: #1e7f4f; font-weight: 600; }
+  .salto { break-before: page; }
+  .portada { height: 245mm; display: flex; flex-direction: column; justify-content: center; text-align: center; }
+  .portada h1 { font-size: 26pt; }
+  .portada .sub { font-size: 14pt; color: var(--suave); }
+  .portada .datos { margin-top: 50px; font-size: 12pt; line-height: 1.9; }
+  .nota { background: #fff7e0; border: 1px solid #e8c766; padding: 8px 10px; border-radius: 4px; font-size: 10pt; }
+  .indice li { text-align: left; }
+</style>
+</head>
+<body>
+
+<section class="portada">
+  <h1>Sistema de Reserva de Salas Universitario</h1>
+  <p class="sub">Diseño, implementación, auditoría y aplicación web sobre Oracle</p>
+  <p class="sub">Base de datos <b>LM_RESERVASALAS</b></p>
+  <div class="datos">
+    <b>Integrantes</b><br>
+    Joan Lara<br>
+    [Nombre] Malagón<br><br>
+    <b>Asignatura:</b> [Nombre de la asignatura]<br>
+    <b>Docente:</b> [Nombre del docente]<br>
+    <b>Proyecto elegido:</b> N.º 8 de la lista «Proyectos de clases 2026-1»<br>
+    Noviembre de 2026
+  </div>
+</section>
+
+<section class="salto">
+<h2>Contenido</h2>
+<ol class="indice">
+  <li>Introducción y alcance</li>
+  <li>Entorno y herramientas</li>
+  <li>Diseño de la base de datos: diagrama relacional y diccionario de datos</li>
+  <li>Implementación: creación, restricciones, datos y respaldos</li>
+  <li>Auditoría: diseño e implementación en PL/SQL</li>
+  <li>Aplicación web (CRUD y reporte de auditoría)</li>
+  <li>Pruebas y resultados</li>
+  <li>Conclusiones</li>
+  <li>Anexos: entregables y forma de ejecución</li>
+</ol>
+
+<h2>1. Introducción y alcance</h2>
+<p>De la lista de proyectos del curso se eligió el <b>proyecto 8, «Sistema de Reserva de Salas Universitario»</b>:
+una aplicación institucional que permite a estudiantes, profesores y personal reservar espacios físicos (aulas,
+salas de estudio, laboratorios, cabinas, auditorios, etc.) de forma rápida y controlada.</p>
+<p>El trabajo cubre los cinco puntos pedidos: (1) diseño de la base de datos con su diagrama relacional y
+diccionario de datos; (2) implementación en Oracle con restricciones, datos (más de 10 registros por tabla) y
+scripts de respaldo de estructura y de datos; (3) una auditoría automática en PL/SQL que guarda cuándo, quién y qué
+cambió en cualquier tabla, incluidos los datos anteriores y nuevos; (4) una aplicación web con CRUD sobre todas las
+tablas y un reporte de auditoría por fecha; y (5) pruebas con evidencias.</p>
+<p>Además de las restricciones declarativas (PK, FK, UNIQUE, CHECK), el diseño incluye las reglas propias del
+negocio: <b>no permite dobles reservas</b> de un mismo espacio en horarios que se crucen, no deja superar la
+capacidad del espacio ni el máximo de horas por tipo de espacio, exige que la reserva quede dentro del horario del
+edificio y solo permite reservar espacios disponibles por usuarios activos.</p>
+
+<h2>2. Entorno y herramientas</h2>
+<table>
+  <tr><th>Componente</th><th>Detalle</th></tr>
+  <tr><td>Motor de base de datos</td><td>Oracle AI Database 26ai Free, versión 23.26.4 (instalado en <code>D:\Oracle</code>)</td></tr>
+  <tr><td>Base de datos conectable</td><td><code>FREEPDB1</code>, servicio <code>localhost:1521/FREEPDB1</code></td></tr>
+  <tr><td>Base de datos del proyecto</td><td>Esquema <b><code>LM_RESERVASALAS</code></b> y tablespace <code>LM_RESERVASALAS_TS</code>.
+      El prefijo <b>LM</b> corresponde a las iniciales de los apellidos <b>L</b>ara y <b>M</b>alagón.</td></tr>
+  <tr><td>Lenguaje procedural</td><td>PL/SQL (paquete, triggers, bloque anónimo)</td></tr>
+  <tr><td>Cliente SQL</td><td>SQL*Plus (incluido con Oracle); también sirve SQL Developer</td></tr>
+  <tr><td>Respaldos</td><td>Scripts SQL con <code>DBMS_METADATA</code> y <code>DBMS_SQL</code>, y Oracle Data Pump (<code>expdp</code>)</td></tr>
+  <tr><td>Aplicación web</td><td>Node.js + Express + node-oracledb 6 (modo Thin), HTML/CSS/JavaScript</td></tr>
+  <tr><td>Diagrama y diccionario</td><td>draw.io (<code>.drawio</code>), PNG, Excel (<code>.xlsx</code>) y PDF, generados desde el diccionario de Oracle</td></tr>
+</table>
+<p class="nota">En Oracle, una «base de datos» de aplicación se implementa como un <b>esquema</b> (usuario) dentro de
+una base de datos conectable (PDB). Por eso el nombre con prefijo se aplica al esquema <code>LM_RESERVASALAS</code> y a su tablespace.</p>
+
+<h2 class="salto">3. Diseño de la base de datos</h2>
+<h3>3.1 Diagrama relacional</h3>
+<figure>
+  <img src="../01_diseno/diagrama_relacional.png" alt="Diagrama relacional de LM_RESERVASALAS">
+  <figcaption>Figura 1. Modelo relacional (entregable editable: <code>01_diseno/diagrama_relacional.drawio</code>; imagen: <code>diagrama_relacional.png</code>).</figcaption>
+</figure>
+
+<h3>3.2 Tablas y relaciones</h3>
+<table>
+  <tr><th>Tabla</th><th>Propósito</th><th>Relaciones</th></tr>
+  <tr><td>FACULTAD</td><td>Facultades y dependencias de la universidad.</td><td>1:N con USUARIO</td></tr>
+  <tr><td>USUARIO</td><td>Estudiantes, profesores, personal y administradores.</td><td>N:1 FACULTAD · 1:N RESERVA</td></tr>
+  <tr><td>EDIFICIO</td><td>Bloques del campus con su horario de apertura y cierre.</td><td>1:N ESPACIO</td></tr>
+  <tr><td>TIPO_ESPACIO</td><td>Aula, sala de estudio, laboratorio, cabina…, con máximo de horas por reserva.</td><td>1:N ESPACIO</td></tr>
+  <tr><td>ESPACIO</td><td>Espacio físico reservable, con capacidad y estado.</td><td>N:1 EDIFICIO · N:1 TIPO_ESPACIO · 1:N RESERVA · N:M RECURSO</td></tr>
+  <tr><td>RECURSO</td><td>Catálogo de equipos (videobeam, computadores, sonido…).</td><td>N:M ESPACIO</td></tr>
+  <tr><td>ESPACIO_RECURSO</td><td>Tabla intermedia N:M con la cantidad de cada recurso por espacio (PK compuesta).</td><td>N:1 ESPACIO (borrado en cascada) · N:1 RECURSO</td></tr>
+  <tr><td>RESERVA</td><td>Reserva de un espacio por un usuario en una franja horaria del mismo día.</td><td>N:1 USUARIO · N:1 ESPACIO</td></tr>
+  <tr><td>AUDITORIA</td><td>Historial de todos los cambios de las tablas anteriores.</td><td>Sin FK (registra cualquier tabla)</td></tr>
+</table>
+<p>El modelo está en tercera forma normal: cada atributo depende solo de la llave de su tabla (por ejemplo, el horario
+pertenece al edificio y el máximo de horas al tipo de espacio, no a cada espacio), y la relación muchos a muchos entre
+espacios y recursos se resuelve con la tabla intermedia <code>ESPACIO_RECURSO</code>.</p>
+
+<h3>3.3 Restricciones diseñadas</h3>
+<table>
+  <tr><th>Tipo</th><th>Ejemplos</th></tr>
+  <tr><td>PRIMARY KEY</td><td>Una por tabla; columnas IDENTITY autoincrementales; PK compuesta en ESPACIO_RECURSO.</td></tr>
+  <tr><td>FOREIGN KEY</td><td>7 llaves foráneas; <code>FK_ESP_REC_ESPACIO</code> con <code>ON DELETE CASCADE</code>; el resto restringe el borrado de padres con hijos.</td></tr>
+  <tr><td>UNIQUE</td><td>Código y nombre de facultad, documento y correo de usuario, códigos de edificio y espacio, nombres de tipo y recurso.</td></tr>
+  <tr><td>CHECK</td><td>Formato de correo y de documento (expresiones regulares), valores permitidos de tipo de usuario y de estados,
+      pisos 1–30, horas 0–24 con apertura &lt; cierre, capacidad 1–1000, máximo de horas 1–12, fin &gt; inicio y mismo día, asistentes &gt; 0.</td></tr>
+  <tr><td>DEFAULT / NOT NULL</td><td>Estado ACTIVO, DISPONIBLE o PENDIENTE; fechas de registro con <code>SYSDATE</code>; campos obligatorios NOT NULL.</td></tr>
+  <tr><td>Trigger de reglas (<code>TRG_RESERVA_REGLAS</code>)</td><td>R1 doble reserva (ORA-20001) · R2 capacidad (-20002) · R3 máximo de horas (-20003) ·
+      R4 horario del edificio (-20004) · R5 espacio disponible y usuario activo (-20005).</td></tr>
+</table>
+<p>El trigger de reglas es de nivel <b>sentencia</b> (<code>AFTER INSERT OR UPDATE ON RESERVA</code>): revisa la tabla completa
+después de cada sentencia. Así evita el error de tabla mutante (ORA-04091), que aparece si un trigger de fila consulta su propia
+tabla, y valida también las cargas de varias filas. Dos reservas se cruzan si <code>a.inicio &lt; b.fin</code> y <code>b.inicio &lt; a.fin</code>.
+Con esa condición, una reserva que empieza justo cuando otra termina sí se permite.</p>
+
+<h3>3.4 Diccionario de datos</h3>
+<p>El diccionario completo está en <code>01_diseno/diccionario_datos.xlsx</code> (hojas: Resumen, Diccionario, Restricciones, Índices y triggers)
+y en <code>01_diseno/diccionario_datos.pdf</code>. Se genera <b>desde el propio diccionario de Oracle</b> (<code>USER_TAB_COLUMNS</code>,
+<code>USER_CONSTRAINTS</code>, <code>USER_COL_COMMENTS</code>), por lo que coincide con lo implementado. Cada tabla y columna tiene su
+comentario (<code>COMMENT ON</code>) en la base de datos. Ejemplo (tabla RESERVA):</p>
+<table>
+  <tr><th>Columna</th><th>Tipo</th><th>Nulo</th><th>Llave</th><th>Descripción</th></tr>
+  <tr><td>ID_RESERVA</td><td>NUMBER(10)</td><td>No</td><td>PK</td><td>Identificador único (IDENTITY)</td></tr>
+  <tr><td>ID_USUARIO</td><td>NUMBER(8)</td><td>No</td><td>FK → USUARIO</td><td>Usuario que reserva</td></tr>
+  <tr><td>ID_ESPACIO</td><td>NUMBER(6)</td><td>No</td><td>FK → ESPACIO</td><td>Espacio reservado</td></tr>
+  <tr><td>FECHA_INICIO</td><td>DATE</td><td>No</td><td></td><td>Fecha y hora de inicio</td></tr>
+  <tr><td>FECHA_FIN</td><td>DATE</td><td>No</td><td></td><td>Fecha y hora de fin; mayor que el inicio y el mismo día</td></tr>
+  <tr><td>NUM_ASISTENTES</td><td>NUMBER(4)</td><td>No</td><td></td><td>No supera la capacidad del espacio</td></tr>
+  <tr><td>MOTIVO</td><td>VARCHAR2(200)</td><td>No</td><td></td><td>Motivo o actividad</td></tr>
+  <tr><td>ESTADO</td><td>VARCHAR2(12)</td><td>No</td><td></td><td>PENDIENTE, CONFIRMADA, CANCELADA o FINALIZADA (por defecto PENDIENTE)</td></tr>
+  <tr><td>FECHA_CREACION</td><td>DATE</td><td>No</td><td></td><td>Fecha de registro (por defecto SYSDATE)</td></tr>
+  <tr><td>OBSERVACION</td><td>VARCHAR2(300)</td><td>Sí</td><td></td><td>Observaciones adicionales</td></tr>
+</table>
+
+<h2 class="salto">4. Implementación</h2>
+<h3>4.1 Paso a paso</h3>
+<ol>
+  <li><b>Instalación de Oracle Free</b> en <code>D:\Oracle</code> con el instalador oficial en modo silencioso (puerto 1521, juego de caracteres AL32UTF8).</li>
+  <li><b><code>00_crear_base_datos.sql</code></b> (como SYSTEM en FREEPDB1): crea el tablespace <code>LM_RESERVASALAS_TS</code> y el esquema
+      <code>LM_RESERVASALAS</code> con los permisos mínimos (sesión, tablas, vistas, procedimientos, triggers y Data Pump).</li>
+  <li><b><code>01_crear_tablas.sql</code></b>: crea las 8 tablas del negocio con todas sus restricciones, índices sobre las llaves foráneas,
+      los comentarios del diccionario y el trigger de reglas de reserva.</li>
+  <li><b><code>02_insertar_datos.sql</code></b>: inserta los datos iniciales y ajusta las columnas IDENTITY al último valor cargado
+      (<code>START WITH LIMIT VALUE</code>).</li>
+  <li><b><code>03_auditoria.sql</code></b>: crea la tabla de auditoría, el paquete <code>PKG_AUDITORIA</code> y genera los triggers de auditoría (sección 5).</li>
+  <li><b><code>04_consulta_auditoria.sql</code></b>: crea las vistas de consulta y el bloque anónimo de reporte.</li>
+</ol>
+<p>Todo se ejecuta en orden con <code>02_scripts/instalar_bd.bat</code>, que guarda la salida de cada paso en <code>02_scripts/logs</code>.
+Los scripts se pueden volver a ejecutar, porque cada uno elimina primero lo que va a crear.</p>
+<pre class="term">[1/5] Creando esquema LM_RESERVASALAS (como SYSTEM)...
+Tablespace creado.
+Usuario creado.
+[2/5] Creando tablas y restricciones...
+[3/5] Insertando datos...
+TABLA            REGISTROS
+---------------  ---------
+FACULTAD                12
+USUARIO                 14
+EDIFICIO                12
+TIPO_ESPACIO            12
+ESPACIO                 15
+RECURSO                 12
+ESPACIO_RECURSO         24
+RESERVA                 18
+[4/5] Instalando auditoria (tabla, paquete, triggers)...
+Trigger TRG_AUD_EDIFICIO creado.  ...  Trigger TRG_AUD_USUARIO creado.   (8 triggers)
+[5/5] Creando vistas de consulta de auditoria...
+Vista creada.  Vista creada.</pre>
+<p>Todas las tablas superan los 10 registros pedidos. Los datos cubren todos los tipos de usuario y de espacio y los cuatro estados de reserva,
+con reservas pasadas y futuras. Además hay un espacio en mantenimiento y un usuario inactivo, que sirven para probar las reglas.</p>
+
+<h3>4.2 Respaldos</h3>
+<table>
+  <tr><th>Respaldo</th><th>Script</th><th>Técnica</th><th>Archivo generado (<code>03_backups/</code>)</th></tr>
+  <tr><td>Solo estructura (sin datos)</td><td><code>05_backup_estructura.sql</code></td>
+      <td><code>DBMS_METADATA.GET_DDL</code> de tablas, FK, índices, comentarios, vistas, paquete y triggers, en orden de dependencias</td>
+      <td><code>LM_RESERVASALAS_estructura_20261119_2251.sql</code></td></tr>
+  <tr><td>Solo datos</td><td><code>06_backup_datos.sql</code></td>
+      <td>Bloque PL/SQL genérico con <code>DBMS_SQL</code>: describe las columnas de cada tabla y genera un <code>INSERT</code> por fila,
+      con el literal adecuado según el tipo (NUMBER, DATE, TIMESTAMP, CLOB en trozos).
+      Desactiva los triggers durante la carga y luego los recompila y reactiva</td>
+      <td><code>LM_RESERVASALAS_datos_20261119_2251.sql</code></td></tr>
+  <tr><td>Data Pump (complemento)</td><td><code>backup.bat</code></td>
+      <td><code>expdp CONTENT=METADATA_ONLY</code> y <code>CONTENT=DATA_ONLY</code></td>
+      <td><code>LM_estructura_*.dmp</code>, <code>LM_datos_*.dmp</code> y sus .log</td></tr>
+</table>
+<p><b>Prueba de restauración:</b> se creó un esquema vacío temporal (<code>LM_RESTORE_PRUEBA</code>) y se ejecutaron en él el respaldo de
+estructura y luego el de datos. Se recrearon las 9 tablas, 2 vistas, el paquete y los 10 triggers, con los mismos conteos que el original
+(por ejemplo, 12 facultades, 15 usuarios, 20 reservas y 8 registros de auditoría). Después se eliminó el esquema temporal.</p>
+
+<h2 class="salto">5. Auditoría</h2>
+<h3>5.1 Diseño de la tabla AUDITORIA</h3>
+<table>
+  <tr><th>Columna</th><th>Tipo</th><th>Responde a</th><th>Origen del dato</th></tr>
+  <tr><td>ID_AUDITORIA</td><td>NUMBER(12) IDENTITY</td><td>Identificador</td><td>Autoincremental</td></tr>
+  <tr><td>FECHA</td><td>TIMESTAMP(3)</td><td><b>¿Cuándo?</b></td><td><code>SYSTIMESTAMP</code> (con milisegundos)</td></tr>
+  <tr><td>TABLA / OPERACION</td><td>VARCHAR2</td><td><b>¿Qué?</b></td><td>Nombre de la tabla; INSERT, UPDATE o DELETE (CHECK)</td></tr>
+  <tr><td>ID_REGISTRO</td><td>VARCHAR2(100)</td><td>¿Qué registro?</td><td>Valor de la PK (compuesta separada por guion, ej. <code>14-1</code>)</td></tr>
+  <tr><td>USUARIO_BD</td><td>VARCHAR2(128)</td><td><b>¿Quién?</b> (base de datos)</td><td><code>USER</code></td></tr>
+  <tr><td>USUARIO_APP</td><td>VARCHAR2(128)</td><td><b>¿Quién?</b> (persona en la app)</td><td><code>SYS_CONTEXT('USERENV','CLIENT_IDENTIFIER')</code></td></tr>
+  <tr><td>USUARIO_SO, EQUIPO, IP, PROGRAMA</td><td>VARCHAR2</td><td>¿Desde dónde?</td><td><code>OS_USER</code>, <code>HOST</code>, <code>IP_ADDRESS</code>, <code>MODULE</code></td></tr>
+  <tr><td>COLUMNAS_MODIFICADAS</td><td>VARCHAR2(1000)</td><td>¿Qué cambió?</td><td>En UPDATE, solo las columnas cuyo valor cambió</td></tr>
+  <tr><td>DATOS_ANTERIORES</td><td>CLOB (IS JSON)</td><td>Dato modificado o borrado</td><td>Fila completa <code>:OLD</code> en JSON (UPDATE y DELETE)</td></tr>
+  <tr><td>DATOS_NUEVOS</td><td>CLOB (IS JSON)</td><td>Dato nuevo</td><td>Fila completa <code>:NEW</code> en JSON (INSERT y UPDATE)</td></tr>
+</table>
+<p>Guardar la fila completa en JSON permite usar <b>una sola tabla</b> de auditoría para todas las tablas, sin importar sus columnas,
+y consultarla con las funciones JSON de Oracle (<code>JSON_VALUE</code>, <code>JSON_TABLE</code>).</p>
+
+<h3>5.2 Solución PL/SQL para automatizar el registro</h3>
+<p>El paquete <b><code>PKG_AUDITORIA</code></b> tiene estas piezas:</p>
+<ul>
+  <li><code>REGISTRAR</code>: inserta el evento en AUDITORIA. Corre en la <b>misma transacción</b> que el cambio, así que si el cambio se
+      deshace con ROLLBACK su auditoría también (comprobado en la prueba P6).</li>
+  <li><code>TEXTO_TRIGGER(tabla)</code> y <code>GENERAR_TRIGGER(tabla)</code>: leen las columnas y la llave primaria de la tabla en el diccionario
+      de Oracle y crean con <code>EXECUTE IMMEDIATE</code> el trigger <code>TRG_AUD_&lt;TABLA&gt;</code>
+      (<code>AFTER INSERT OR UPDATE OR DELETE … FOR EACH ROW</code>).</li>
+  <li><code>GENERAR_TODOS</code>: genera los triggers de <b>todas</b> las tablas del esquema. Si se agrega una tabla o una columna, basta con volver a
+      ejecutarlo; no hay que escribir triggers a mano.</li>
+  <li><code>PURGAR(fecha)</code>: única vía permitida para borrar auditoría antigua.</li>
+</ul>
+<p>Además, el trigger <code>TRG_AUDITORIA_PROTEGER</code> impide modificar o borrar registros de auditoría (ORA-20102), para que el historial
+no se pueda alterar. En un UPDATE, el trigger generado compara <code>:OLD</code> y <code>:NEW</code> columna por columna, tratando los NULL de forma
+explícita, y no registra nada si no cambió ningún valor. Fragmento del trigger generado para FACULTAD:</p>
+<pre>CREATE OR REPLACE TRIGGER TRG_AUD_FACULTAD
+AFTER INSERT OR UPDATE OR DELETE ON FACULTAD
+FOR EACH ROW
+-- Trigger generado automaticamente por PKG_AUDITORIA.GENERAR_TRIGGER
+DECLARE
+  v_ant CLOB; v_nue CLOB; v_op VARCHAR2(6); v_id VARCHAR2(100); v_cols VARCHAR2(4000);
+BEGIN
+  IF INSERTING THEN
+    v_op := 'INSERT';  v_id := :NEW.ID_FACULTAD;
+    SELECT JSON_OBJECT('ID_FACULTAD' VALUE :NEW.ID_FACULTAD, 'CODIGO' VALUE :NEW.CODIGO,
+           'NOMBRE' VALUE :NEW.NOMBRE, 'DECANO' VALUE :NEW.DECANO,
+           'TELEFONO' VALUE :NEW.TELEFONO RETURNING CLOB) INTO v_nue FROM DUAL;
+  ELSIF UPDATING THEN
+    v_op := 'UPDATE';  v_id := :NEW.ID_FACULTAD;
+    IF (:OLD.NOMBRE &lt;&gt; :NEW.NOMBRE) OR (:OLD.NOMBRE IS NULL AND :NEW.NOMBRE IS NOT NULL)
+       OR (:OLD.NOMBRE IS NOT NULL AND :NEW.NOMBRE IS NULL) THEN v_cols := v_cols || 'NOMBRE,'; END IF;
+    -- ... una comparacion igual por cada columna ...
+    IF v_cols IS NULL THEN RETURN; END IF;   -- UPDATE sin cambios reales
+    SELECT JSON_OBJECT(... :OLD ...) INTO v_ant FROM DUAL;
+    SELECT JSON_OBJECT(... :NEW ...) INTO v_nue FROM DUAL;
+  ELSE
+    v_op := 'DELETE';  v_id := :OLD.ID_FACULTAD;
+    SELECT JSON_OBJECT(... :OLD ...) INTO v_ant FROM DUAL;
+  END IF;
+  PKG_AUDITORIA.REGISTRAR('FACULTAD', v_op, v_id, v_cols, v_ant, v_nue);
+END;</pre>
+
+<h3>5.3 Consulta de la auditoría: vistas y bloque anónimo</h3>
+<p><code>VW_AUDITORIA</code> muestra un registro por cambio, con la fecha formateada y un campo <code>QUIEN</code> (usuario de la app o, si no hay, el de
+la base de datos). <code>VW_AUDITORIA_RESUMEN</code> cuenta inserciones, actualizaciones y eliminaciones por día y tabla. El bloque anónimo de
+<code>04_consulta_auditoria.sql</code> pide un rango de fechas y, si se quiere, una tabla. Luego imprime los cambios agrupados por día, con los datos
+antes y después y un total por operación:</p>
+<pre class="term">REPORTE DE AUDITORIA - LM_RESERVASALAS
+Desde: 2026-11-19   Hasta: 2026-11-19   Tabla: RESERVA
+--- 2026-11-19 ---
+2026-11-19 22:50:53.152 UPDATE  RESERVA  id=19  por pruebas_sqlplus (LM_RESERVASALAS@WORKGROUP\DESKTOP-35DKBVI)
+    columnas: ESTADO,OBSERVACION
+    antes  : {"ID_RESERVA":19,...,"ESTADO":"PENDIENTE",...,"OBSERVACION":null}
+    despues: {"ID_RESERVA":19,...,"ESTADO":"CONFIRMADA",...,"OBSERVACION":"Aprobada por bienestar"}
+2026-11-19 22:57:00.696 INSERT  RESERVA  id=40  por jlara (LM_RESERVASALAS@DESKTOP-35DKBVI)
+2026-11-19 22:57:30.274 UPDATE  RESERVA  id=40  por jlara (LM_RESERVASALAS@DESKTOP-35DKBVI)
+    columnas: NUM_ASISTENTES,ESTADO,OBSERVACION
+ Total de cambios en el periodo: 5
+   INSERT  : 3
+   UPDATE  : 2</pre>
+
+<h2 class="salto">6. Aplicación web</h2>
+<p>La aplicación (<code>04_app/</code>) es un servidor <b>Node.js + Express</b> que se conecta a Oracle con <b>node-oracledb</b> en modo Thin,
+que no necesita Oracle Client, y una interfaz web en HTML, CSS y JavaScript. Su funcionamiento:</p>
+<ul>
+  <li><b>CRUD de las 8 tablas</b> a partir de metadatos (<code>src/tablas.js</code>): listar con búsqueda, crear, editar y eliminar. Las llaves
+      foráneas aparecen como listas desplegables con texto legible y los valores permitidos de los CHECK como listas de opciones. La PK compuesta de
+      ESPACIO_RECURSO también está soportada.</li>
+  <li><b>Validación en dos niveles:</b> en el navegador (obligatorios, rangos, patrones) y en Oracle, que es la autoridad: restricciones y trigger de
+      reglas. La app traduce los errores ORA a mensajes claros, por ejemplo «Doble reserva: el espacio ya está reservado…».</li>
+  <li><b>Quién hizo el cambio:</b> el usuario escribe su nombre arriba a la derecha. En cada petición el servidor lo asigna a la sesión de Oracle
+      (<code>connection.clientId</code> → <code>CLIENT_IDENTIFIER</code>) y el trigger lo guarda en <code>USUARIO_APP</code>.</li>
+  <li><b>Reporte de auditoría por fecha:</b> filtros por rango de fechas, tabla, operación y usuario; totales por operación; cambios agrupados por día;
+      detalle «antes / después» con las columnas modificadas resaltadas; impresión o PDF y exportación a CSV.</li>
+  <li>Todas las sentencias usan variables de enlace (<i>bind variables</i>), lo que evita la inyección SQL. Los nombres de tablas y columnas solo
+      salen de la lista de metadatos.</li>
+</ul>
+<h3>6.1 Diseño de la interfaz</h3>
+<p>La interfaz toma la identidad visual de la <b>Fundación Universitaria Konrad Lorenz</b>, sin usar su logo oficial. El morado institucional
+(<code>#4A1760</code>) da la estructura: el menú lateral y los encabezados de las tablas. El lima (<code>#CCED00</code>) marca la sección activa y las
+reservas pendientes; solo se usa sobre morado, porque sobre blanco no tiene contraste suficiente. El magenta (<code>#C8105A</code>) es el color de la
+acción principal. Toda la interfaz usa una sola tipografía, <b>Host Grotesk</b>, la misma del sitio de la universidad. Partimos de la guía
+<i>UI/UX Pro Max</i> y luego quitamos los rasgos de plantilla genérica (degradados, iconos en cuadritos de color, etiquetas en mayúsculas).</p>
+<ul>
+  <li><b>Logo propio:</b> una puerta construida con facetas en magenta, lima y petróleo, con el pomo en morado. Recuerda las facetas de la «K» de la
+      universidad sin copiarla.</li>
+  <li><b>Agenda de salas como pantalla de inicio:</b> un tablero de ocupación con las salas en filas y las horas de 6 a 22 en columnas. Cada reserva
+      es un bloque (morado si está confirmada, lima si está pendiente) y las horas en que el edificio está cerrado aparecen rayadas, igual que la sala en
+      mantenimiento. Al hacer clic en un hueco libre se abre «Nueva reserva» con la sala y la hora ya puestas; al hacer clic en un bloque se edita esa
+      reserva. Con las flechas se cambia de día. Los datos salen de un endpoint nuevo, <code>/api/agenda</code>, que consulta Oracle.</li>
+  <li><b>Debajo del tablero</b> hay una franja con cuatro cifras del día y, a los lados, las próximas reservas, la distribución por estado, las salas más
+      solicitadas y los registros por tabla.</li>
+  <li><b>Códigos de sala como placas:</b> en las tablas y el tablero, códigos como B1-201 se muestran como las placas de las puertas.</li>
+  <li><b>Textos claros:</b> los estados se leen «Confirmada» y no «CONFIRMADA», y los botones dicen exactamente lo que hacen («Crear reserva»,
+      «Guardar cambios», «Eliminar usuario»). Los avisos repiten esa misma acción («Reserva creada con el número 62»).</li>
+  <li><b>Formularios accesibles:</b> cada error aparece debajo de su campo, unido con <code>aria-describedby</code>, y arriba hay un resumen enfocable
+      con enlaces. Los errores de Oracle también se muestran en el campo que los causó: el servidor lee del diccionario qué columna corresponde a cada
+      restricción.</li>
+  <li><b>Accesibilidad y adaptación:</b> todos los controles miden al menos 44 px, el contraste del texto es de al menos 4.5:1 y el foco es visible en
+      todos los controles. Hay modo claro y oscuro y se respeta <code>prefers-reduced-motion</code>. En el celular, el menú pasa a ser un cajón y el tablero
+      se desplaza por horas con la columna de salas fija.</li>
+</ul>
+<figure><img src="../05_pruebas/capturas/01_agenda_tablero.jpg" alt="Agenda de salas"><figcaption>Figura 2. Agenda de salas: tablero de ocupación del 24 de noviembre con reservas confirmadas y pendientes, horas cerradas y una sala en mantenimiento.</figcaption></figure>
+<figure><img src="../05_pruebas/capturas/02_agenda_resumen.jpg" alt="Resumen del día"><figcaption>Figura 3. Debajo del tablero: cifras del día, próximas reservas, reservas por estado y salas más solicitadas.</figcaption></figure>
+<figure><img src="../05_pruebas/capturas/10_modo_oscuro.jpg" alt="Modo oscuro"><figcaption>Figura 4. El tablero en modo oscuro.</figcaption></figure>
+
+<h2 class="salto">7. Pruebas y resultados</h2>
+<h3>7.1 Pruebas en la base de datos (<code>05_pruebas/pruebas.sql</code>)</h3>
+<p>La salida completa está en <code>05_pruebas/resultado_pruebas_sqlplus.txt</code>.</p>
+<table>
+  <tr><th>#</th><th>Caso</th><th>Esperado</th><th>Obtenido</th></tr>
+  <tr><td>P1</td><td>INSERT válidos en FACULTAD, USUARIO y RESERVA</td><td>Se insertan y se auditan</td><td class="ok">3 filas creadas; 3 INSERT en auditoría</td></tr>
+  <tr><td>P2</td><td>UPDATE de reserva y espacio; repetir un UPDATE sin cambio</td><td>Antes, después y columnas; el UPDATE sin cambios no se audita</td><td class="ok">ESTADO,OBSERVACION y CAPACIDAD; el UPDATE sin cambios no generó registro</td></tr>
+  <tr><td>P3</td><td>DELETE en ESPACIO_RECURSO (PK compuesta) y FACULTAD</td><td>Se guarda la fila borrada</td><td class="ok">ID_REGISTRO «14-1» y «13» con DATOS_ANTERIORES</td></tr>
+  <tr><td>4.1</td><td>Correo sin @</td><td>Rechazo</td><td class="ok">ORA-02290 CK_USUARIO_EMAIL</td></tr>
+  <tr><td>4.2</td><td>Documento duplicado</td><td>Rechazo</td><td class="ok">ORA-00001 UQ_USUARIO_DOCUMENTO</td></tr>
+  <tr><td>4.3</td><td>Tipo de usuario «VISITANTE»</td><td>Rechazo</td><td class="ok">ORA-02290 CK_USUARIO_TIPO</td></tr>
+  <tr><td>4.4</td><td>Facultad inexistente</td><td>Rechazo</td><td class="ok">ORA-02291 FK_USUARIO_FACULTAD</td></tr>
+  <tr><td>4.5</td><td>Borrar edificio con espacios</td><td>Rechazo</td><td class="ok">ORA-02292 FK_ESPACIO_EDIFICIO</td></tr>
+  <tr><td>4.6</td><td>Fin antes que inicio</td><td>Rechazo</td><td class="ok">ORA-02290 CK_RESERVA_FECHAS</td></tr>
+  <tr><td>4.7</td><td>Edificio que abre a las 23 y cierra a las 5</td><td>Rechazo</td><td class="ok">ORA-02290 CK_EDIFICIO_HORAS</td></tr>
+  <tr><td>5.1</td><td>Doble reserva del Aula 201</td><td>Rechazo</td><td class="ok">ORA-20001 cruce con la reserva 6</td></tr>
+  <tr><td>5.2</td><td>5 personas en una cabina de 1</td><td>Rechazo</td><td class="ok">ORA-20002 capacidad</td></tr>
+  <tr><td>5.3</td><td>5 horas en una cabina (máximo 2)</td><td>Rechazo</td><td class="ok">ORA-20003 máximo de horas</td></tr>
+  <tr><td>5.4</td><td>Reserva a las 5:00 en la Biblioteca (abre a las 7)</td><td>Rechazo</td><td class="ok">ORA-20004 horario del edificio</td></tr>
+  <tr><td>5.5</td><td>Espacio en MANTENIMIENTO</td><td>Rechazo</td><td class="ok">ORA-20005</td></tr>
+  <tr><td>5.6</td><td>Usuario INACTIVO</td><td>Rechazo</td><td class="ok">ORA-20005</td></tr>
+  <tr><td>5.7</td><td>Reserva contigua (12:00 justo cuando termina la anterior)</td><td>Se permite</td><td class="ok">1 fila creada</td></tr>
+  <tr><td>P6</td><td>INSERT seguido de ROLLBACK</td><td>No queda auditoría</td><td class="ok">0 registros</td></tr>
+  <tr><td>P7</td><td>UPDATE y DELETE sobre AUDITORIA</td><td>Rechazo</td><td class="ok">ORA-20102 (historial protegido)</td></tr>
+  <tr><td>R</td><td>Restaurar los respaldos en un esquema vacío</td><td>Misma estructura y datos</td><td class="ok">Objetos y conteos idénticos</td></tr>
+</table>
+<pre class="term">-- 5.1 Doble reserva: cruza con la reserva 6 (Aula 201, 2026-11-24 08:00-10:00)
+ORA-20001: Doble reserva: el espacio ya esta reservado en ese horario (cruce con la reserva 6).
+ORA-06512: en "LM_RESERVASALAS.TRG_RESERVA_REGLAS", linea 15
+
+ID_AUDITORIA FECHA_HORA              TABLA            OPERACION ID_REGISTRO QUIEN            COLUMNAS_MODIFICADAS
+------------ ----------------------- ---------------- --------- ----------- ---------------- --------------------
+           1 2026-11-19 22:50:53.078 FACULTAD         INSERT    13          pruebas_sqlplus
+           2 2026-11-19 22:50:53.086 USUARIO          INSERT    15          pruebas_sqlplus
+           3 2026-11-19 22:50:53.091 RESERVA          INSERT    19          pruebas_sqlplus
+           4 2026-11-19 22:50:53.152 RESERVA          UPDATE    19          pruebas_sqlplus  ESTADO,OBSERVACION
+           5 2026-11-19 22:50:53.160 ESPACIO          UPDATE    1           pruebas_sqlplus  CAPACIDAD
+           6 2026-11-19 22:50:53.189 ESPACIO_RECURSO  DELETE    14-1        pruebas_sqlplus
+           7 2026-11-19 22:50:53.195 FACULTAD         DELETE    13          pruebas_sqlplus
+          16 2026-11-19 22:50:53.315 RESERVA          INSERT    27          pruebas_sqlplus</pre>
+<p class="nota">Los saltos en <code>ID_AUDITORIA</code> (de 7 a 16) son normales. Las sentencias rechazadas alcanzaron a pedir números a la columna
+IDENTITY antes de deshacerse, y Oracle no reutiliza esos números. Lo mismo explica que la reserva creada desde la app tenga el ID 40.</p>
+
+<h3 class="salto">7.2 Pruebas en la aplicación web</h3>
+<p>Se probaron las cuatro operaciones del CRUD desde la interfaz. Se creó la reserva 40 («Tutoría de Programación», 24 de noviembre, 14:00–16:00)
+y luego la 62 desde el tablero, haciendo clic en el hueco de las 9:00 de la sala B1-305. Se consultaron con la búsqueda y el ordenamiento, y la 40 se
+actualizó a confirmada con 25 asistentes. Para eliminar se usó un recurso temporal, y se comprobó que la llave foránea <code>FK_ESPACIO_EDIFICIO</code>
+impide borrar el edificio B1. Las capturas son del diseño final.</p>
+<figure><img src="../05_pruebas/capturas/03_reserva_desde_tablero.jpg" alt="Reserva desde el tablero"><figcaption>Figura 5. Insertar desde el tablero: el clic en el hueco de las 9:00 de B1-305 abre «Nueva reserva» con la sala y el horario ya puestos.</figcaption></figure>
+<figure><img src="../05_pruebas/capturas/04_reservas_tabla.jpg" alt="Tabla de reservas"><figcaption>Figura 6. Consultar: tabla de reservas con búsqueda, columnas ordenables, códigos de sala como placas y acciones de editar y eliminar.</figcaption></figure>
+<figure><img src="../05_pruebas/capturas/05_doble_reserva_rechazada.jpg" alt="Doble reserva"><figcaption>Figura 7. Intento de doble reserva del Aula 201 (24 de noviembre, 9:00–10:30): el trigger de Oracle la rechaza y el error aparece en el campo «Inicio» y en el resumen.</figcaption></figure>
+<figure><img src="../05_pruebas/capturas/06_errores_por_campo.jpg" alt="Errores por campo"><figcaption>Figura 8. Validación accesible: resumen de errores con enlaces y cada error debajo de su campo.</figcaption></figure>
+<figure><img src="../05_pruebas/capturas/07_confirmar_eliminar.jpg" alt="Confirmar eliminación"><figcaption>Figura 9. Eliminar: confirmación que nombra el registro y avisa que la operación queda en la auditoría.</figcaption></figure>
+<figure><img src="../05_pruebas/capturas/08_reporte_auditoria.jpg" alt="Reporte de auditoría"><figcaption>Figura 10. Reporte de auditoría por fecha: cifras por operación, cambios agrupados por día y quién los hizo, desde qué programa y en qué equipo.</figcaption></figure>
+<figure><img src="../05_pruebas/capturas/09_auditoria_antes_despues.jpg" alt="Antes y después"><figcaption>Figura 11. Actualizar: detalle de la actualización de la reserva 40, con los datos antes y después y las columnas que cambiaron resaltadas.</figcaption></figure>
+<figure><img src="../05_pruebas/capturas/11_vista_movil.jpg" alt="Vista móvil" style="max-width:300px"><figcaption>Figura 12. En el celular (375 px) el tablero se desplaza por horas y la columna de salas queda fija.</figcaption></figure>
+
+<h2 class="salto">8. Conclusiones</h2>
+<ul>
+  <li>Las reglas que protegen la calidad de los datos quedaron <b>dentro de la base de datos</b>: restricciones declarativas más un trigger de
+      sentencia para las reglas del negocio. Por eso la doble reserva se impide igual desde SQL*Plus que desde la aplicación web; ninguna capa
+      puede saltárselas.</li>
+  <li>Generar los triggers de auditoría desde el diccionario de Oracle hace que la solución sea <b>automática y mantenible</b>. Una sola ejecución
+      de <code>PKG_AUDITORIA.GENERAR_TODOS</code> cubre todas las tablas, incluidas las que se agreguen después, y el formato JSON permite que una
+      única tabla guarde los datos anteriores y nuevos de cualquier tabla.</li>
+  <li>Para saber <b>quién</b> hizo un cambio desde una aplicación web no basta con el usuario de la base de datos, porque todas las peticiones usan
+      la misma conexión. Al pasar el usuario de la app como <code>CLIENT_IDENTIFIER</code>, la auditoría distingue a cada persona sin crear un usuario
+      de Oracle por cada una.</li>
+  <li>Que la auditoría corra en la misma transacción y que su tabla esté protegida contra cambios hace el historial confiable: no quedan registros
+      de cambios deshechos y nadie puede borrar el rastro.</li>
+  <li>Los respaldos se <b>verificaron restaurándolos</b> en un esquema vacío. Esa prueba encontró un detalle real que se corrigió: los ALTER de
+      IDENTITY invalidan los triggers y las vistas, así que el respaldo de datos ahora los recompila al final.</li>
+  <li>Las pruebas también encontraron y corrigieron un error sutil de NULL: una comparación <code>NOT (a = b)</code> no detecta el paso de NULL a un valor.
+      Fue una buena lección sobre la lógica de tres valores de SQL.</li>
+</ul>
+
+<h2>9. Anexos: entregables y ejecución</h2>
+<table>
+  <tr><th>Punto</th><th>Entregable</th><th>Ruta en la carpeta del proyecto</th></tr>
+  <tr><td>1</td><td>Diagrama relacional (draw.io e imagen)</td><td><code>01_diseno/diagrama_relacional.drawio</code>, <code>.png</code></td></tr>
+  <tr><td>1</td><td>Diccionario de datos (Excel y PDF)</td><td><code>01_diseno/diccionario_datos.xlsx</code>, <code>.pdf</code></td></tr>
+  <tr><td>2</td><td>Creación de la base de datos, restricciones y datos</td><td><code>02_scripts/00_…</code>, <code>01_…</code>, <code>02_…</code></td></tr>
+  <tr><td>2</td><td>Script de backup de solo estructura y su resultado</td><td><code>02_scripts/05_backup_estructura.sql</code> → <code>03_backups/LM_RESERVASALAS_estructura_*.sql</code></td></tr>
+  <tr><td>2</td><td>Script de backup de datos y su resultado</td><td><code>02_scripts/06_backup_datos.sql</code> → <code>03_backups/LM_RESERVASALAS_datos_*.sql</code></td></tr>
+  <tr><td>3</td><td>Solución de auditoría (tabla, paquete y triggers)</td><td><code>02_scripts/03_auditoria.sql</code></td></tr>
+  <tr><td>3</td><td>Vistas y bloque anónimo de consulta</td><td><code>02_scripts/04_consulta_auditoria.sql</code></td></tr>
+  <tr><td>4</td><td>Aplicación web CRUD y reporte de auditoría</td><td><code>04_app/</code></td></tr>
+  <tr><td>5</td><td>Datos de prueba, resultados y capturas</td><td><code>05_pruebas/</code></td></tr>
+</table>
+<h3>Cómo ejecutar</h3>
+<pre class="term">REM 1. Crear la base de datos completa
+02_scripts\instalar_bd.bat
+
+REM 2. Generar respaldos
+02_scripts\backup.bat
+
+REM 3. Aplicación web  ->  http://localhost:3000
+cd 04_app
+npm install
+npm start</pre>
+<p>Enlaces de los adjuntos: [pegar aquí el enlace de la carpeta compartida (Drive / OneDrive / GitHub) con los entregables].</p>
+</section>
+</body>
+</html>

@@ -1,0 +1,18 @@
+# Claves de la base de datos (nunca se suben)
+.env
+.oracle_sys_password
+**/.env
+**/.oracle_sys_password
+
+# Dependencias y archivos generados
+node_modules/
+02_scripts/logs/
+05_pruebas/_*.sql
+05_pruebas/restauracion_prueba.txt
+01_diseno/_diagrama_render.html
+
+# Sistema / editor
+.claude/settings.local.json
+Thumbs.db
+desktop.ini
+.DS_Store

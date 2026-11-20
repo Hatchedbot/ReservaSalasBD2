@@ -1,0 +1,71 @@
+﻿
+Vista creada.
+
+
+Vista creada.
+
+
+ID_AUDITORIA FECHA_HORA 	     TABLA	      OPERACION ID_REGISTRO  QUIEN		      COLUMNAS_MODIFICADAS
+------------ ----------------------- ---------------- --------- ------------ ------------------------ ----------------------------------------
+	  26 2026-11-19 22:57:51.267 RECURSO	      DELETE	33	     jlara
+	  25 2026-11-19 22:57:45.800 RECURSO	      INSERT	33	     jlara
+	  23 2026-11-19 22:57:30.274 RESERVA	      UPDATE	40	     jlara		      NUM_ASISTENTES,ESTADO,OBSERVACION
+	  22 2026-11-19 22:57:00.696 RESERVA	      INSERT	40	     jlara
+	  16 2026-11-19 22:50:53.315 RESERVA	      INSERT	27	     pruebas_sqlplus
+	   7 2026-11-19 22:50:53.195 FACULTAD	      DELETE	13	     pruebas_sqlplus
+	   6 2026-11-19 22:50:53.189 ESPACIO_RECURSO  DELETE	14-1	     pruebas_sqlplus
+	   5 2026-11-19 22:50:53.160 ESPACIO	      UPDATE	1	     pruebas_sqlplus	      CAPACIDAD
+	   4 2026-11-19 22:50:53.152 RESERVA	      UPDATE	19	     pruebas_sqlplus	      ESTADO,OBSERVACION
+	   3 2026-11-19 22:50:53.091 RESERVA	      INSERT	19	     pruebas_sqlplus
+	   2 2026-11-19 22:50:53.086 USUARIO	      INSERT	15	     pruebas_sqlplus
+	   1 2026-11-19 22:50:53.078 FACULTAD	      INSERT	13	     pruebas_sqlplus
+
+12 filas seleccionadas.
+
+
+DIA	 TABLA		  INSERCIONES ACTUALIZACIONES ELIMINACIONES	 TOTAL
+-------- ---------------- ----------- --------------- ------------- ----------
+19/11/26 ESPACIO		    0		    1		  0	     1
+19/11/26 ESPACIO_RECURSO	    0		    0		  1	     1
+19/11/26 FACULTAD		    1		    0		  1	     2
+19/11/26 RECURSO		    1		    0		  1	     2
+19/11/26 RESERVA		    3		    2		  0	     5
+19/11/26 USUARIO		    1		    0		  0	     1
+
+6 filas seleccionadas.
+
+Fecha inicial (YYYY-MM-DD): Fecha final   (YYYY-MM-DD): Tabla (Enter = todas)	  : ====================================================================================================
+REPORTE DE AUDITORIA - LM_RESERVASALAS
+Desde: 2026-11-19   Hasta: 2026-11-19	Tabla: RESERVA
+====================================================================================================
+
+--- 2026-11-19 ---
+2026-11-19 22:50:53.091 INSERT	RESERVA 	 id=19	     por pruebas_sqlplus (LM_RESERVASALAS@WORKGROUP\DESKTOP-35DKBVI)
+despues: {"ID_RESERVA":19,"ID_USUARIO":3,"ID_ESPACIO":7,"FECHA_INICIO":"2026-12-09T09:00:00","FECHA_FIN":"2026-12-09T11:00:00","NUM_ASISTENTES":1,"MOTIVO":"Prueba de reserva de
+cabina","ESTADO":"PENDIENTE","FECHA_CREACION":"2026-11-19T22:50:53","OBSERVACION":null}
+2026-11-19 22:50:53.152 UPDATE	RESERVA 	 id=19	     por pruebas_sqlplus (LM_RESERVASALAS@WORKGROUP\DESKTOP-35DKBVI)
+columnas: ESTADO,OBSERVACION
+antes  : {"ID_RESERVA":19,"ID_USUARIO":3,"ID_ESPACIO":7,"FECHA_INICIO":"2026-12-09T09:00:00","FECHA_FIN":"2026-12-09T11:00:00","NUM_ASISTENTES":1,"MOTIVO":"Prueba de reserva de
+cabina","ESTADO":"PENDIENTE","FECHA_CREACION":"2026-11-19T22:50:53","OBSERVACION":null}
+despues: {"ID_RESERVA":19,"ID_USUARIO":3,"ID_ESPACIO":7,"FECHA_INICIO":"2026-12-09T09:00:00","FECHA_FIN":"2026-12-09T11:00:00","NUM_ASISTENTES":1,"MOTIVO":"Prueba de reserva de
+cabina","ESTADO":"CONFIRMADA","FECHA_CREACION":"2026-11-19T22:50:53","OBSERVACION":"Aprobada por bienestar"}
+2026-11-19 22:50:53.315 INSERT	RESERVA 	 id=27	     por pruebas_sqlplus (LM_RESERVASALAS@WORKGROUP\DESKTOP-35DKBVI)
+despues: {"ID_RESERVA":27,"ID_USUARIO":9,"ID_ESPACIO":1,"FECHA_INICIO":"2026-11-24T12:00:00","FECHA_FIN":"2026-11-24T14:00:00","NUM_ASISTENTES":30,"MOTIVO":"Reserva contigua
+valida","ESTADO":"PENDIENTE","FECHA_CREACION":"2026-11-19T22:50:53","OBSERVACION":null}
+2026-11-19 22:57:00.696 INSERT	RESERVA 	 id=40	     por jlara (LM_RESERVASALAS@DESKTOP-35DKBVI)
+despues: {"ID_RESERVA":40,"ID_USUARIO":5,"ID_ESPACIO":1,"FECHA_INICIO":"2026-11-24T14:00:00","FECHA_FIN":"2026-11-24T16:00:00","NUM_ASISTENTES":20,"MOTIVO":"Tutoria de
+Programacion","ESTADO":"PENDIENTE","FECHA_CREACION":"2026-11-19T22:57:00","OBSERVACION":null}
+2026-11-19 22:57:30.274 UPDATE	RESERVA 	 id=40	     por jlara (LM_RESERVASALAS@DESKTOP-35DKBVI)
+columnas: NUM_ASISTENTES,ESTADO,OBSERVACION
+antes  : {"ID_RESERVA":40,"ID_USUARIO":5,"ID_ESPACIO":1,"FECHA_INICIO":"2026-11-24T14:00:00","FECHA_FIN":"2026-11-24T16:00:00","NUM_ASISTENTES":20,"MOTIVO":"Tutoria de
+Programacion","ESTADO":"PENDIENTE","FECHA_CREACION":"2026-11-19T22:57:00","OBSERVACION":null}
+despues: {"ID_RESERVA":40,"ID_USUARIO":5,"ID_ESPACIO":1,"FECHA_INICIO":"2026-11-24T14:00:00","FECHA_FIN":"2026-11-24T16:00:00","NUM_ASISTENTES":25,"MOTIVO":"Tutoria de
+Programacion","ESTADO":"CONFIRMADA","FECHA_CREACION":"2026-11-19T22:57:00","OBSERVACION":"Aprobada por coordinacion"}
+
+----------------------------------------------------------------------------------------------------
+Total de cambios en el periodo: 5
+INSERT	: 3
+UPDATE	: 2
+
+Procedimiento PL/SQL terminado correctamente.
+

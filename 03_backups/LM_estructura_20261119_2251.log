@@ -1,0 +1,32 @@
+;;; 
+Export: Release 23.26.4.0.0 - Production on Jue Nov 19 22:52:13 2026
+Version 23.26.4.0.0
+
+Copyright (c) 1982, 2026, Oracle and/or its affiliates.  All rights reserved.
+;;; 
+Conectado a: Oracle AI Database 26ai Free Release 23.26.4.0.0 - Develop, Learn, and Run for Free
+Iniciando "LM_RESERVASALAS"."SYS_EXPORT_SCHEMA_01":  LM_RESERVASALAS/********@localhost:1521/FREEPDB1 SCHEMAS=LM_RESERVASALAS CONTENT=METADATA_ONLY DIRECTORY=DATA_PUMP_DIR DUMPFILE=LM_estructura_20261119_2251.dmp LOGFILE=LM_estructura_20261119_2251.log REUSE_DUMPFILES=YES 
+Procesando el tipo de objeto SCHEMA_EXPORT/PACKAGE/PACKAGE_BODY
+Procesando el tipo de objeto SCHEMA_EXPORT/TABLE/INDEX/STATISTICS/INDEX_STATISTICS
+Procesando el tipo de objeto SCHEMA_EXPORT/TABLE/STATISTICS/TABLE_STATISTICS
+Procesando el tipo de objeto SCHEMA_EXPORT/USER
+Procesando el tipo de objeto SCHEMA_EXPORT/SYSTEM_GRANT
+Procesando el tipo de objeto SCHEMA_EXPORT/ROLE_GRANT
+Procesando el tipo de objeto SCHEMA_EXPORT/DEFAULT_ROLE
+Procesando el tipo de objeto SCHEMA_EXPORT/TABLESPACE_QUOTA
+Procesando el tipo de objeto SCHEMA_EXPORT/PRE_SCHEMA/PROCACT_SCHEMA/LOGREP
+Procesando el tipo de objeto SCHEMA_EXPORT/TABLE/TABLE
+Procesando el tipo de objeto SCHEMA_EXPORT/TABLE/COMMENT
+Procesando el tipo de objeto SCHEMA_EXPORT/TABLE/IDENTITY_COLUMN
+Procesando el tipo de objeto SCHEMA_EXPORT/PACKAGE/PACKAGE_SPEC
+Procesando el tipo de objeto SCHEMA_EXPORT/PACKAGE/COMPILE_PACKAGE/PACKAGE_SPEC/ALTER_PACKAGE_SPEC
+Procesando el tipo de objeto SCHEMA_EXPORT/VIEW/VIEW
+Procesando el tipo de objeto SCHEMA_EXPORT/TABLE/INDEX/INDEX
+Procesando el tipo de objeto SCHEMA_EXPORT/TABLE/CONSTRAINT/CONSTRAINT
+Procesando el tipo de objeto SCHEMA_EXPORT/TABLE/CONSTRAINT/REF_CONSTRAINT
+Procesando el tipo de objeto SCHEMA_EXPORT/TABLE/TRIGGER
+La tabla maestra "LM_RESERVASALAS"."SYS_EXPORT_SCHEMA_01" se ha cargado/descargado correctamente
+******************************************************************************
+El juego de archivos de volcado para LM_RESERVASALAS.SYS_EXPORT_SCHEMA_01 es:
+  D:\ORACLE\PRODUCT\26AI\ADMIN\FREE\DPDUMP\C3B34D42767E475EB1C27BA48D35FC8C\LM_ESTRUCTURA_20261119_2251.DMP
+El trabajo "LM_RESERVASALAS"."SYS_EXPORT_SCHEMA_01" ha terminado correctamente en Jue Nov 19 22:53:48 2026 elapsed 0 00:01:28
