@@ -390,6 +390,34 @@ impide borrar el edificio B1. Las capturas son del diseño final.</p>
 <figure><img src="../05_pruebas/capturas/09_auditoria_antes_despues.jpg" alt="Antes y después"><figcaption>Figura 11. Actualizar: detalle de la actualización de la reserva 40, con los datos antes y después y las columnas que cambiaron resaltadas.</figcaption></figure>
 <figure><img src="../05_pruebas/capturas/11_vista_movil.jpg" alt="Vista móvil" style="max-width:300px"><figcaption>Figura 12. En el celular (375 px) el tablero se desplaza por horas y la columna de salas queda fija.</figcaption></figure>
 
+<h3 class="salto">7.3 Pruebas automáticas con Playwright</h3>
+<p>Además de las pruebas manuales, la aplicación tiene <b>38 pruebas automáticas de extremo a extremo</b> escritas con Playwright
+(<code>04_app/tests/e2e</code>). Controlan un navegador real (Microsoft Edge) como lo haría una persona: hacen clic, escriben y leen la pantalla.
+Se ejecutan en dos perfiles, escritorio (1366 px) y celular (375 px), con un solo comando: <code>npm run test:e2e</code>.</p>
+<table>
+  <tr><th>Grupo</th><th>Pruebas</th><th>Qué se comprueba</th></tr>
+  <tr><td>Navegación</td><td>5</td><td>La agenda muestra todas las salas y reservas del día; cada tabla abre con todos sus registros; enlaces directos, botón atrás, búsqueda y ordenamiento.</td></tr>
+  <tr><td>CRUD</td><td>5</td><td>Insertar, consultar, actualizar y eliminar en facultades, recursos, usuarios, recursos por espacio (llave compuesta) y reservas.</td></tr>
+  <tr><td>Tablero</td><td>3</td><td>Cambio de día; reservar haciendo clic en un hueco libre (sala y hora quedan puestas); editar desde un bloque; salas en mantenimiento.</td></tr>
+  <tr><td>Validaciones</td><td>8</td><td>Errores junto a cada campo y resumen enfocable; correo repetido, doble reserva, capacidad y máximo de horas mostrados en su campo; llave foránea; usuario obligatorio.</td></tr>
+  <tr><td>Auditoría</td><td>4</td><td>Las tres operaciones quedan registradas con el usuario de la app; detalle antes/después; filtro por operación; exportación a CSV.</td></tr>
+  <tr><td>Accesibilidad</td><td>7</td><td>Análisis automático con axe-core (WCAG 2.2 AA) sin problemas graves en cuatro pantallas; controles de 44 px; uso con teclado; tema oscuro.</td></tr>
+  <tr><td>Celular</td><td>6</td><td>Sin desplazamiento horizontal en cuatro pantallas; menú tipo cajón; columna de salas fija al desplazar el tablero.</td></tr>
+</table>
+<p><b>Resultado:</b> 38 de 38 pruebas aprobadas, en dos ejecuciones completas seguidas. Los datos que crean las pruebas llevan la marca
+«E2E» y se borran al terminar; se verificó que no quedó ninguno.</p>
+<p>La primera ejecución encontró <b>errores reales que se corrigieron</b>:</p>
+<ul>
+  <li>Si se abría un formulario sin haber escrito el usuario de la aplicación, la app pedía escribirlo en la barra superior. Pero el diálogo
+      es modal y bloquea el resto de la página, así que no había forma de llegar a ese campo. Ahora el formulario pide el usuario en un campo propio.</li>
+  <li>Los bloques de reserva del tablero estaban dentro de un elemento marcado <code>aria-hidden</code>, así que eran invisibles para los
+      lectores de pantalla aunque se podía llegar a ellos con el teclado. Además, su nombre accesible no incluía el texto visible.</li>
+  <li>El enlace del logo tenía un nombre accesible distinto de su texto visible.</li>
+  <li>Al cargar la página, el foco saltaba al contenido y la tecla Tab se saltaba el menú.</li>
+  <li>Los mensajes de las reglas de reserva llegaban sin tildes («esta reservado», «maximo») y el título del día solo se veía con mayúscula
+      inicial por CSS.</li>
+</ul>
+
 <h2 class="salto">8. Conclusiones</h2>
 <ul>
   <li>Las reglas que protegen la calidad de los datos quedaron <b>dentro de la base de datos</b>: restricciones declarativas más un trigger de

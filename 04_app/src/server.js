@@ -106,7 +106,20 @@ function traducirError(err) {
   const msg = err.message || String(err);
   const m = msg.match(/\(LM_RESERVASALAS\.([A-Z0-9_]+)\)/);
   const restr = m && m[1];
-  if (/ORA-2000[1-5]|ORA-2010\d/.test(msg)) {
+  // Reglas del trigger TRG_RESERVA_REGLAS: los mensajes de Oracle vienen sin tildes
+  // (el script SQL se guarda en ASCII); aquí se muestran bien escritos.
+  const regla = msg.match(/ORA-(2000[1-5]): .*?(\d+)/);
+  if (regla) {
+    const n = regla[2];
+    return {
+      20001: `Doble reserva: la sala ya está reservada en ese horario (se cruza con la reserva ${n}).`,
+      20002: `Hay más asistentes que la capacidad de la sala (reserva ${n}).`,
+      20003: `La reserva ${n} supera el máximo de horas permitido para ese tipo de espacio.`,
+      20004: `La reserva ${n} está fuera del horario de apertura del edificio.`,
+      20005: `La reserva ${n} usa una sala que no está disponible o un usuario inactivo.`,
+    }[regla[1]];
+  }
+  if (/ORA-2010\d/.test(msg)) {
     return msg.split('\n')[0].replace(/^ORA-\d+:\s*/, '');
   }
   if (msg.includes('ORA-00001')) return nombresRestriccion[restr] || `Valor duplicado (${restr})`;
