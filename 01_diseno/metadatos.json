@@ -3,47 +3,47 @@
     {
       "TABLE_NAME": "AUDITORIA",
       "COMMENTS": "Historial de cambios (INSERT, UPDATE, DELETE) de todas las tablas del esquema",
-      "NUM_ROWS": null
+      "NUM_ROWS": 15
     },
     {
       "TABLE_NAME": "EDIFICIO",
       "COMMENTS": "Edificios o bloques del campus donde estan los espacios",
-      "NUM_ROWS": null
+      "NUM_ROWS": 12
     },
     {
       "TABLE_NAME": "ESPACIO",
       "COMMENTS": "Espacios fisicos reservables: aulas, salas de estudio, laboratorios, cabinas, etc.",
-      "NUM_ROWS": null
+      "NUM_ROWS": 15
     },
     {
       "TABLE_NAME": "ESPACIO_RECURSO",
       "COMMENTS": "Relacion N:M entre espacios y los recursos con que cuentan",
-      "NUM_ROWS": null
+      "NUM_ROWS": 23
     },
     {
       "TABLE_NAME": "FACULTAD",
       "COMMENTS": "Facultades y dependencias de la universidad a las que pertenecen los usuarios",
-      "NUM_ROWS": null
+      "NUM_ROWS": 12
     },
     {
       "TABLE_NAME": "RECURSO",
       "COMMENTS": "Catalogo de recursos o equipos que puede tener un espacio",
-      "NUM_ROWS": null
+      "NUM_ROWS": 12
     },
     {
       "TABLE_NAME": "RESERVA",
       "COMMENTS": "Reservas de espacios realizadas por los usuarios",
-      "NUM_ROWS": null
+      "NUM_ROWS": 22
     },
     {
       "TABLE_NAME": "TIPO_ESPACIO",
       "COMMENTS": "Clasificacion de los espacios con sus reglas de reserva",
-      "NUM_ROWS": null
+      "NUM_ROWS": 12
     },
     {
       "TABLE_NAME": "USUARIO",
       "COMMENTS": "Personas que pueden reservar espacios: estudiantes, profesores, personal y administradores",
-      "NUM_ROWS": null
+      "NUM_ROWS": 15
     }
   ],
   "columnas": [
@@ -2031,13 +2031,13 @@
     }
   ],
   "conteos": {
-    "AUDITORIA": 12,
+    "AUDITORIA": 116,
     "EDIFICIO": 12,
     "ESPACIO": 15,
     "ESPACIO_RECURSO": 23,
     "FACULTAD": 12,
     "RECURSO": 12,
-    "RESERVA": 21,
+    "RESERVA": 22,
     "TIPO_ESPACIO": 12,
     "USUARIO": 15
   }

@@ -1,0 +1,24 @@
+;;; 
+Export: Release 23.26.4.0.0 - Production on Dom Nov 22 12:08:13 2026
+Version 23.26.4.0.0
+
+Copyright (c) 1982, 2026, Oracle and/or its affiliates.  All rights reserved.
+;;; 
+Conectado a: Oracle AI Database 26ai Free Release 23.26.4.0.0 - Develop, Learn, and Run for Free
+Iniciando "LM_RESERVASALAS"."SYS_EXPORT_SCHEMA_01":  LM_RESERVASALAS/********@localhost:1521/FREEPDB1 SCHEMAS=LM_RESERVASALAS CONTENT=DATA_ONLY DIRECTORY=DATA_PUMP_DIR DUMPFILE=LM_datos_20261122_1205.dmp LOGFILE=LM_datos_20261122_1205.log REUSE_DUMPFILES=YES 
+Procesando el tipo de objeto SCHEMA_EXPORT/TABLE/TABLE_DATA
+Procesando el tipo de objeto SCHEMA_EXPORT/TABLE/IDENTITY_COLUMN
+. . "LM_RESERVASALAS"."AUDITORIA"                  67 KB     116 filas exportadas
+. . "LM_RESERVASALAS"."RESERVA"                    11 KB      22 filas exportadas
+. . "LM_RESERVASALAS"."USUARIO"                  10.8 KB      15 filas exportadas
+. . "LM_RESERVASALAS"."ESPACIO"                   9.3 KB      15 filas exportadas
+. . "LM_RESERVASALAS"."EDIFICIO"                  8.7 KB      12 filas exportadas
+. . "LM_RESERVASALAS"."FACULTAD"                  7.7 KB      12 filas exportadas
+. . "LM_RESERVASALAS"."TIPO_ESPACIO"              7.8 KB      12 filas exportadas
+. . "LM_RESERVASALAS"."RECURSO"                   6.8 KB      12 filas exportadas
+. . "LM_RESERVASALAS"."ESPACIO_RECURSO"           6.4 KB      23 filas exportadas
+La tabla maestra "LM_RESERVASALAS"."SYS_EXPORT_SCHEMA_01" se ha cargado/descargado correctamente
+******************************************************************************
+El juego de archivos de volcado para LM_RESERVASALAS.SYS_EXPORT_SCHEMA_01 es:
+  D:\ORACLE\PRODUCT\26AI\ADMIN\FREE\DPDUMP\C3B34D42767E475EB1C27BA48D35FC8C\LM_DATOS_20261122_1205.DMP
+El trabajo "LM_RESERVASALAS"."SYS_EXPORT_SCHEMA_01" ha terminado correctamente en Dom Nov 22 12:08:26 2026 elapsed 0 00:00:09

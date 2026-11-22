@@ -1,6 +1,6 @@
 -- =====================================================================
 --  RESPALDO DE ESTRUCTURA (sin datos) - esquema LM_RESERVASALAS
---  Generado: 2026-11-19 22:51:04
+--  Generado: 2026-11-22 12:05:25
 --  Restaurar: conectado como LM_RESERVASALAS ejecutar @este_archivo.sql
 -- =====================================================================
 SET DEFINE OFF

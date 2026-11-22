@@ -195,19 +195,19 @@ con reservas pasadas y futuras. Además hay un espacio en mantenimiento y un usu
   <tr><th>Respaldo</th><th>Script</th><th>Técnica</th><th>Archivo generado (<code>03_backups/</code>)</th></tr>
   <tr><td>Solo estructura (sin datos)</td><td><code>05_backup_estructura.sql</code></td>
       <td><code>DBMS_METADATA.GET_DDL</code> de tablas, FK, índices, comentarios, vistas, paquete y triggers, en orden de dependencias</td>
-      <td><code>LM_RESERVASALAS_estructura_20261119_2251.sql</code></td></tr>
+      <td><code>LM_RESERVASALAS_estructura_20261122_1205.sql</code></td></tr>
   <tr><td>Solo datos</td><td><code>06_backup_datos.sql</code></td>
       <td>Bloque PL/SQL genérico con <code>DBMS_SQL</code>: describe las columnas de cada tabla y genera un <code>INSERT</code> por fila,
       con el literal adecuado según el tipo (NUMBER, DATE, TIMESTAMP, CLOB en trozos).
       Desactiva los triggers durante la carga y luego los recompila y reactiva</td>
-      <td><code>LM_RESERVASALAS_datos_20261119_2251.sql</code></td></tr>
+      <td><code>LM_RESERVASALAS_datos_20261122_1205.sql</code></td></tr>
   <tr><td>Data Pump (complemento)</td><td><code>backup.bat</code></td>
       <td><code>expdp CONTENT=METADATA_ONLY</code> y <code>CONTENT=DATA_ONLY</code></td>
       <td><code>LM_estructura_*.dmp</code>, <code>LM_datos_*.dmp</code> y sus .log</td></tr>
 </table>
 <p><b>Prueba de restauración:</b> se creó un esquema vacío temporal (<code>LM_RESTORE_PRUEBA</code>) y se ejecutaron en él el respaldo de
 estructura y luego el de datos. Se recrearon las 9 tablas, 2 vistas, el paquete y los 10 triggers, con los mismos conteos que el original
-(por ejemplo, 12 facultades, 15 usuarios, 20 reservas y 8 registros de auditoría). Después se eliminó el esquema temporal.</p>
+(por ejemplo, 12 facultades, 15 usuarios, 22 reservas y 116 registros de auditoría, todos con JSON válido) y ningún objeto inválido. Después se eliminó el esquema temporal. Los respaldos entregados son los del 22 de noviembre de 2026, con los datos finales del proyecto.</p>
 
 <h2 class="salto">5. Auditoría</h2>
 <h3>5.1 Diseño de la tabla AUDITORIA</h3>
@@ -449,6 +449,7 @@ Se ejecutan en dos perfiles, escritorio (1366 px) y celular (375 px), con un sol
   <tr><td>3</td><td>Vistas y bloque anónimo de consulta</td><td><code>02_scripts/04_consulta_auditoria.sql</code></td></tr>
   <tr><td>4</td><td>Aplicación web CRUD y reporte de auditoría</td><td><code>04_app/</code></td></tr>
   <tr><td>5</td><td>Datos de prueba, resultados y capturas</td><td><code>05_pruebas/</code></td></tr>
+  <tr><td>5</td><td>Pruebas automáticas con Playwright (38 pruebas)</td><td><code>04_app/tests/e2e/</code></td></tr>
 </table>
 <h3>Cómo ejecutar</h3>
 <pre class="term">REM 1. Crear la base de datos completa
@@ -461,7 +462,7 @@ REM 3. Aplicación web  ->  http://localhost:3000
 cd 04_app
 npm install
 npm start</pre>
-<p>Enlaces de los adjuntos: [pegar aquí el enlace de la carpeta compartida (Drive / OneDrive / GitHub) con los entregables].</p>
+<p><b>Enlace de los adjuntos:</b> todos los entregables están en el repositorio público <a href="https://github.com/Hatchedbot/ReservaSalasBD2">https://github.com/Hatchedbot/ReservaSalasBD2</a>, en la rama <code>main</code>, con la misma estructura de carpetas de la tabla anterior.</p>
 </section>
 </body>
 </html>
