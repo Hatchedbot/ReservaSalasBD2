@@ -11,6 +11,11 @@ node_modules/
 05_pruebas/restauracion_prueba.txt
 01_diseno/_diagrama_render.html
 
+# Resultados de Playwright (se generan en cada ejecución)
+04_app/test-results/
+04_app/playwright-report/
+04_app/blob-report/
+
 # Sistema / editor
 .claude/settings.local.json
 Thumbs.db

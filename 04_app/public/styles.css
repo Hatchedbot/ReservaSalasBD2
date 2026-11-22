@@ -259,7 +259,6 @@ td.acc { white-space: nowrap; text-align: right; width: 1%; padding-top: 2px; pa
 /* ================================================= inicio: tablero de ocupación */
 .hoy { display: flex; align-items: flex-end; justify-content: space-between; gap: var(--sp-4); flex-wrap: wrap; margin-bottom: var(--sp-4); }
 .hoy h1 { margin: 0; font-size: 34px; line-height: 1.1; font-weight: 800; letter-spacing: -.025em; }
-.hoy h1::first-letter { text-transform: uppercase; }
 .hoy p { margin: 4px 0 0; color: var(--text-muted); }
 .hoy-acc { display: flex; gap: var(--sp-2); align-items: center; flex-wrap: wrap; }
 .pasos { display: inline-flex; border: 1px solid var(--border-strong); border-radius: var(--radius); overflow: hidden; background: var(--surface); }

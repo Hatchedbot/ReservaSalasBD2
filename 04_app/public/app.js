@@ -156,11 +156,13 @@ function ir(v) {
   if (location.hash.slice(1) !== v) history.pushState(null, '', `#${v}`);
   mostrar(v);
 }
-function mostrar(v) {
+// enfocar: al navegar, el foco pasa al contenido nuevo (lectores de pantalla).
+// En la carga inicial no se mueve, para que Tab empiece por el menú.
+function mostrar(v, enfocar = true) {
   if (META[v]) { marcarActivo(v, META[v].titulo); vistaTabla(v); }
   else if (v === 'auditoria') { marcarActivo(v, 'Reporte de auditoría'); vistaAuditoria(); }
   else { marcarActivo('inicio', 'Agenda de salas'); vistaInicio(); }
-  $('#vista').focus({ preventScroll: true });
+  if (enfocar) $('#vista').focus({ preventScroll: true });
   window.scrollTo(0, 0);
 }
 window.addEventListener('popstate', () => mostrar(location.hash.slice(1) || 'inicio'));
@@ -242,7 +244,8 @@ async function vistaInicio(dia) {
   diaAgenda = ag.dia;
   const hoy = isoHoy();
   const fecha = new Date(`${ag.dia}T12:00`);
-  const titulo = fecha.toLocaleDateString('es-CO', { weekday: 'long', day: 'numeric', month: 'long' });
+  const tituloMin = fecha.toLocaleDateString('es-CO', { weekday: 'long', day: 'numeric', month: 'long' });
+  const titulo = tituloMin.charAt(0).toUpperCase() + tituloMin.slice(1);
   const nota = ag.dia === hoy ? 'Hoy'
     : (!dia ? 'No hay reservas hoy; este es el próximo día con reservas' : fecha.toLocaleDateString('es-CO', { year: 'numeric' }));
   const porSala = {};
@@ -264,13 +267,13 @@ async function vistaInicio(dia) {
       const a = aHoras(r.INICIO);
       const b = aHoras(r.FIN);
       const ancho = `calc(${pct(b)} - ${pct(a)} - 2px)`;
+      // El nombre accesible empieza por el texto visible y añade sala y estado solo para lectores de pantalla
       return `<button class="tb-bloque ${r.ESTADO}" style="left:calc(${pct(a)} + 1px);width:${ancho}" data-reserva="${r.ID_RESERVA}"
-        aria-label="${esc(`${s.CODIGO}, ${r.INICIO} a ${r.FIN}: ${r.MOTIVO}, ${r.USUARIO}, ${ETIQUETA[r.ESTADO] || r.ESTADO}. Editar`)}"
-        title="${esc(`${r.INICIO}–${r.FIN} ${r.MOTIVO} (${r.USUARIO})`)}"><b>${esc(r.MOTIVO)}</b><span>${esc(r.INICIO)}–${esc(r.FIN)}, ${esc(r.USUARIO)}</span></button>`;
+        title="${esc(`${r.INICIO}–${r.FIN} ${r.MOTIVO} (${r.USUARIO})`)}"><b>${esc(r.MOTIVO)}</b><span>${esc(r.INICIO)}–${esc(r.FIN)}, ${esc(r.USUARIO)}</span><span class="sr-only">, en ${esc(s.CODIGO)}, ${ETIQUETA[r.ESTADO] || r.ESTADO}. Editar</span></button>`;
     }).join('');
     return `<div class="tb-fila${mant ? ' mant' : ''}" data-espacio="${s.ID_ESPACIO}" data-abre="${s.HORA_APERTURA}" data-cierra="${s.HORA_CIERRE}">
       <div class="tb-sala"><span class="placa">${esc(s.CODIGO)}</span><small>${mant ? 'En mantenimiento' : `${esc(s.NOMBRE)}, ${s.CAPACIDAD} ${s.CAPACIDAD === 1 ? 'persona' : 'personas'}`}</small></div>
-      <div class="tb-pista" style="--horas:${HORAS}" ${mant ? '' : `aria-hidden="true"`}>${cerrado}${bloques}${marcaAhora}</div></div>`;
+      <div class="tb-pista" style="--horas:${HORAS}">${cerrado}${bloques}${marcaAhora}</div></div>`;
   }).join('');
 
   const ind = e.indicadores;
@@ -541,8 +544,21 @@ async function abrirForm(nombre, fila, inicial = {}, alGuardar = null) {
     return `<label class="campo${ancho}" for="f_${c.nombre}"><span class="etq">${esc(c.etiqueta)}${req ? '<span class="req" aria-hidden="true">*</span><span class="sr-only"> (obligatorio)</span>' : ''}</span>${control}${ayuda}
       <span class="error-campo" id="err_${c.nombre}" hidden></span></label>`;
   }).join('');
+  // El diálogo es modal: la barra superior queda inaccesible mientras está abierto.
+  // Si falta el usuario de la app, se pide aquí mismo y se sincroniza con la barra.
+  if (!inpUsuario.value.trim()) {
+    campos.insertAdjacentHTML('afterbegin', `<label class="campo ancho" for="f_USUARIO_APP">
+      <span class="etq">Tu usuario de la aplicación<span class="req" aria-hidden="true">*</span><span class="sr-only"> (obligatorio)</span></span>
+      <input id="f_USUARIO_APP" maxlength="60" autocomplete="username" aria-describedby="ayuda_USUARIO_APP err_USUARIO_APP">
+      <span class="ayuda" id="ayuda_USUARIO_APP">Queda en la auditoría como la persona que hizo el cambio</span>
+      <span class="error-campo" id="err_USUARIO_APP" hidden></span></label>`);
+    $('#f_USUARIO_APP').addEventListener('input', (ev) => {
+      inpUsuario.value = ev.target.value;
+      inpUsuario.dispatchEvent(new Event('input'));
+    });
+  }
   limpiarErrores();
-  campos.oninput = (ev) => { const n = ev.target.name; if (n) marcarCampo(n, null); };
+  campos.oninput = (ev) => { const n = ev.target.name || ev.target.id.replace(/^f_/, ''); if (n) marcarCampo(n, null); };
   campos.onchange = campos.oninput;
   campos.querySelector('input:not(:disabled), select:not(:disabled)')?.focus();
 
@@ -554,6 +570,9 @@ async function abrirForm(nombre, fila, inicial = {}, alGuardar = null) {
     const form = $('#frm');
     limpiarErrores();
     const errores = validarFormulario(form, t);
+    if (!inpUsuario.value.trim() && document.getElementById('f_USUARIO_APP')) {
+      errores.unshift({ campo: 'USUARIO_APP', mensaje: 'Escribe tu usuario para que la auditoría registre quién hace el cambio' });
+    }
     if (errores.length) { mostrarErrores(errores); return; }
     if (!exigirUsuario()) return;
     const datos = Object.fromEntries(new FormData(form).entries());
@@ -611,7 +630,7 @@ function marcarCampo(campo, mensaje) {
 }
 
 function limpiarErrores() {
-  document.querySelectorAll('#campos [aria-invalid]').forEach((c) => marcarCampo(c.name, null));
+  document.querySelectorAll('#campos [aria-invalid]').forEach((c) => marcarCampo(c.id.replace(/^f_/, ''), null));
   $('#resumenErrores').hidden = true;
   $('#dlgError').hidden = true;
 }
@@ -795,5 +814,5 @@ function exportarCsv(filas) {
   $('#puntoBd').className = `punto ${e ? 'ok' : 'mal'}`;
   $('#textoBd').textContent = e ? `Conectado a Oracle (${e.PDB})` : 'Sin conexión a Oracle';
   pintarMenu();
-  mostrar(location.hash.slice(1) || 'inicio');
+  mostrar(location.hash.slice(1) || 'inicio', false);
 })();

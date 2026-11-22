@@ -40,4 +40,29 @@ npm start
 Abrir <http://localhost:3000>. Escribir el *usuario de la aplicación* arriba a la derecha:
 se guarda en la auditoría como "quién" hizo cada cambio.
 
+## Pruebas automáticas (Playwright)
+
+38 pruebas de extremo a extremo en `04_app/tests/e2e`, en dos perfiles: escritorio (1366 px) y celular (375 px).
+Usan el Microsoft Edge instalado, así que no hay que descargar navegadores. Requieren Oracle encendido;
+la aplicación la arranca Playwright si no está corriendo.
+
+```powershell
+cd D:\UNIVERSIDAD\LM_ReservaSalas\04_app
+npm run test:e2e
+```
+
+| Archivo | Qué comprueba |
+|---|---|
+| `navegacion.spec.js` | Agenda, todas las tablas del menú con su número de registros, enlaces directos, botón atrás, búsqueda y orden |
+| `crud.spec.js` | Insertar, consultar, actualizar y eliminar en facultades, recursos, usuarios, recursos por espacio (PK compuesta) y reservas |
+| `tablero.spec.js` | Cambio de día, reservar haciendo clic en un hueco libre, editar desde un bloque, salas en mantenimiento |
+| `validaciones.spec.js` | Errores junto a cada campo, resumen enfocable, UNIQUE, doble reserva, capacidad, máximo de horas, llave foránea, usuario obligatorio |
+| `auditoria.spec.js` | Inserción, actualización y eliminación registradas con el usuario de la app, detalle antes/después, filtros y CSV |
+| `accesibilidad.spec.js` | Análisis axe-core (WCAG 2.2 AA) sin problemas graves, controles de 44 px, teclado y tema oscuro |
+| `movil.spec.js` | Sin desplazamiento horizontal, menú tipo cajón y columna de salas fija en el tablero |
+
+Todos los datos que crean las pruebas llevan la marca `E2E` y se borran al terminar. Los registros de auditoría
+se conservan porque esa tabla no permite borrar. `npm run test:e2e:ver` muestra el navegador mientras corren y
+`npm run test:e2e:reporte` abre el informe HTML.
+
 Las claves están en `04_app/.env` y `04_app/.oracle_sys_password` (no se suben a repositorios).
