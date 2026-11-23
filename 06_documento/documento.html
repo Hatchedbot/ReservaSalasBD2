@@ -4,48 +4,78 @@
 <meta charset="utf-8">
 <title>LM_ReservaSalas - Documento del proyecto</title>
 <style>
-  @page { size: A4; margin: 18mm 16mm; }
-  :root { --pri: #1f4e79; --suave: #5f6b7a; --borde: #d6dee7; }
-  body { font-family: "Segoe UI", Arial, sans-serif; font-size: 11pt; color: #1d2733; line-height: 1.45; }
-  h1 { color: var(--pri); font-size: 20pt; margin: 0 0 6px; }
-  h2 { color: var(--pri); font-size: 15pt; border-bottom: 2px solid var(--pri); padding-bottom: 3px; margin-top: 26px; break-after: avoid; }
-  h3 { color: var(--pri); font-size: 12pt; margin: 16px 0 6px; break-after: avoid; }
+  /* Calibri, texto negro y tablas con la paleta de la aplicación (morado Konrad y lila) */
+  @page {
+    size: A4; margin: 25mm 25mm 22mm 25mm;
+    @bottom-center { content: counter(page); font-family: Calibri, Carlito, sans-serif; font-size: 9pt; color: #000; }
+  }
+  @page :first { @bottom-center { content: none; } }
+  body { font-family: Calibri, Carlito, "Segoe UI", sans-serif; font-size: 11pt; color: #000; line-height: 1.5; }
+  h1, h2, h3, h4 { color: #000; font-weight: 700; break-after: avoid; }
+  h2 { font-size: 16pt; margin: 22px 0 8px; }
+  h3 { font-size: 13pt; margin: 16px 0 6px; }
+  p { margin: 0 0 8px; }
   p, li { text-align: justify; }
-  table { width: 100%; border-collapse: collapse; margin: 8px 0 12px; font-size: 9.5pt; break-inside: auto; }
-  th { background: var(--pri); color: #fff; text-align: left; padding: 5px 7px; }
-  td { border-bottom: 1px solid var(--borde); padding: 4px 7px; vertical-align: top; }
-  tr:nth-child(even) td { background: #f6f9fc; }
-  pre { background: #f3f6f9; border: 1px solid var(--borde); border-left: 4px solid var(--pri); padding: 8px 10px;
-        font-family: Consolas, monospace; font-size: 8.3pt; white-space: pre-wrap; word-break: break-word; break-inside: avoid; }
-  pre.term { background: #0f1b2a; color: #d8e6f3; border-left-color: #4a9be0; }
-  code { font-family: Consolas, monospace; font-size: 9.5pt; background: #eef2f6; padding: 0 3px; border-radius: 3px; }
+  ul, ol { margin: 4px 0 10px; padding-left: 28px; }
+  li { margin-bottom: 3px; }
+  a { color: #000; }
+  b, strong { font-weight: 700; }
+  table { width: 100%; border-collapse: collapse; margin: 8px 0 14px; font-size: 9.5pt; break-inside: auto; }
+  th { background: #4a1760; color: #fff; font-weight: 700; text-align: left; padding: 5px 7px; border: 1px solid #4a1760; }
+  td { color: #000; padding: 4px 7px; border: 1px solid #cfc4d8; vertical-align: top; }
+  tr:nth-child(even) td { background: #f6f4f8; }
+  tr { break-inside: avoid; }
+  pre { background: #f6f4f8; color: #000; border: 1px solid #cfc4d8; border-left: 3px solid #4a1760; padding: 8px 10px; margin: 8px 0 14px;
+        font-family: Consolas, "Courier New", monospace; font-size: 8pt; line-height: 1.35;
+        white-space: pre-wrap; word-break: break-word; break-inside: avoid; }
+  code { font-family: Consolas, "Courier New", monospace; font-size: 9pt; color: #000; }
   figure { margin: 10px 0 16px; break-inside: avoid; text-align: center; }
-  figure img { max-width: 100%; border: 1px solid var(--borde); }
-  figcaption { font-size: 9pt; color: var(--suave); margin-top: 4px; }
-  .ok { color: #1e7f4f; font-weight: 600; }
+  figure img { max-width: 100%; }
+  figcaption { font-size: 9pt; font-style: italic; color: #000; margin-top: 4px; }
+  .ok { color: #000; }
   .salto { break-before: page; }
-  .portada { height: 245mm; display: flex; flex-direction: column; justify-content: center; text-align: center; }
-  .portada h1 { font-size: 26pt; }
-  .portada .sub { font-size: 14pt; color: var(--suave); }
-  .portada .datos { margin-top: 50px; font-size: 12pt; line-height: 1.9; }
-  .nota { background: #fff7e0; border: 1px solid #e8c766; padding: 8px 10px; border-radius: 4px; font-size: 10pt; }
+  .nota { border-left: 3px solid #4a1760; background: #f1eaf5; padding: 6px 10px; font-size: 10pt; }
   .indice li { text-align: left; }
+
+  /* Portada */
+  .portada { height: 248mm; display: flex; flex-direction: column; align-items: center; text-align: center; }
+  .portada .logo { width: 52mm; margin-top: 8mm; }
+  .portada .titulo { margin-top: 42mm; }
+  .portada h1 { font-size: 18pt; margin: 0 0 4px; }
+  .portada .subtitulo { font-size: 12pt; margin: 0; text-align: center; }
+  .portada .bloque { margin-top: 28mm; font-size: 12pt; line-height: 1.55; }
+  .portada .bloque + .bloque { margin-top: 12mm; }
+  .portada .bloque b { display: block; margin-bottom: 3px; }
+  .portada .institucion { margin-top: auto; font-size: 12pt; line-height: 2.1; margin-bottom: 8mm; }
+  .portada p { text-align: center; margin: 0; }
 </style>
 </head>
 <body>
 
 <section class="portada">
-  <h1>Sistema de Reserva de Salas Universitario</h1>
-  <p class="sub">Diseño, implementación, auditoría y aplicación web sobre Oracle</p>
-  <p class="sub">Base de datos <b>LM_RESERVASALAS</b></p>
-  <div class="datos">
-    <b>Integrantes</b><br>
-    Joan Lara<br>
-    [Nombre] Malagón<br><br>
-    <b>Asignatura:</b> [Nombre de la asignatura]<br>
-    <b>Docente:</b> [Nombre del docente]<br>
-    <b>Proyecto elegido:</b> N.º 8 de la lista «Proyectos de clases 2026-1»<br>
-    Noviembre de 2026
+  <img class="logo" src="logo-konrad.png" alt="Fundación Universitaria Konrad Lorenz">
+  <div class="titulo">
+    <h1>Proyecto final: Sistema de Reserva de Salas Universitario</h1>
+    <p class="subtitulo">Diseño, implementación, auditoría en PL/SQL y aplicación web sobre Oracle (base de datos LM_RESERVASALAS)</p>
+  </div>
+  <div class="bloque">
+    <b>Presentado por:</b>
+    Joan Sebastián Lara Fuenmayor<br>
+    Andrés Fernando Malagón Espitia
+  </div>
+  <div class="bloque">
+    <b>Docente:</b>
+    Noé Arcos Muñoz
+  </div>
+  <div class="bloque">
+    <b>Asignatura:</b>
+    Base de Datos II
+  </div>
+  <div class="institucion">
+    <p><b>Fundación Universitaria Konrad Lorenz</b></p>
+    <p>Facultad de Matemáticas e Ingenierías</p>
+    <p>Ingeniería de Sistemas</p>
+    <p>Bogotá D.C., 22 de noviembre de 2026</p>
   </div>
 </section>
 
