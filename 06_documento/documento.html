@@ -52,46 +52,107 @@
 <section class="salto">
 <h2>Contenido</h2>
 <ol class="indice">
-  <li>Introducción y alcance</li>
-  <li>Entorno y herramientas</li>
-  <li>Diseño de la base de datos: diagrama relacional y diccionario de datos</li>
-  <li>Implementación: creación, restricciones, datos y respaldos</li>
-  <li>Auditoría: diseño e implementación en PL/SQL</li>
-  <li>Aplicación web (CRUD y reporte de auditoría)</li>
-  <li>Pruebas y resultados</li>
+  <li>Introducción: contexto y problema, objetivos y alcance</li>
+  <li>Entorno y herramientas: equipo, herramientas, configuración de la base de datos y organización de los archivos</li>
+  <li>Diseño de la base de datos: diagrama relacional, tablas y relaciones, restricciones y diccionario de datos</li>
+  <li>Implementación: paso a paso, carga de datos y respaldos</li>
+  <li>Auditoría: tabla de auditoría, solución en PL/SQL y consultas</li>
+  <li>Aplicación web: funcionamiento, servicios de la API y diseño de la interfaz</li>
+  <li>Pruebas y resultados: base de datos, aplicación web y pruebas automáticas</li>
   <li>Conclusiones</li>
   <li>Anexos: entregables y forma de ejecución</li>
 </ol>
 
-<h2>1. Introducción y alcance</h2>
-<p>De la lista de proyectos del curso se eligió el <b>proyecto 8, «Sistema de Reserva de Salas Universitario»</b>:
-una aplicación institucional que permite a estudiantes, profesores y personal reservar espacios físicos (aulas,
-salas de estudio, laboratorios, cabinas, auditorios, etc.) de forma rápida y controlada.</p>
-<p>El trabajo cubre los cinco puntos pedidos: (1) diseño de la base de datos con su diagrama relacional y
-diccionario de datos; (2) implementación en Oracle con restricciones, datos (más de 10 registros por tabla) y
-scripts de respaldo de estructura y de datos; (3) una auditoría automática en PL/SQL que guarda cuándo, quién y qué
-cambió en cualquier tabla, incluidos los datos anteriores y nuevos; (4) una aplicación web con CRUD sobre todas las
-tablas y un reporte de auditoría por fecha; y (5) pruebas con evidencias.</p>
-<p>Además de las restricciones declarativas (PK, FK, UNIQUE, CHECK), el diseño incluye las reglas propias del
-negocio: <b>no permite dobles reservas</b> de un mismo espacio en horarios que se crucen, no deja superar la
-capacidad del espacio ni el máximo de horas por tipo de espacio, exige que la reserva quede dentro del horario del
-edificio y solo permite reservar espacios disponibles por usuarios activos.</p>
+<h2>1. Introducción</h2>
+<h3>1.1 Contexto y problema</h3>
+<p>En una universidad, los espacios físicos (aulas, salas de estudio, laboratorios, cabinas individuales, auditorios y salas de
+juntas) son un recurso limitado que comparten estudiantes, profesores y personal administrativo. Cuando las reservas se gestionan
+por correo, en hojas de cálculo o directamente en cada dependencia, aparecen problemas conocidos: dos personas reservan la misma
+sala a la misma hora, se reserva un espacio más pequeño de lo necesario o fuera del horario del edificio, y no queda un registro
+confiable de quién hizo cada cambio ni cuándo.</p>
+<p>Para el trabajo final del curso se eligió, de la lista «Proyectos de clases 2026-1», el <b>proyecto 8: Sistema de Reserva de
+Salas Universitario</b>. Se trata de una aplicación institucional para que la comunidad universitaria reserve espacios físicos de
+forma rápida y controlada.</p>
+
+<h3>1.2 Objetivo general</h3>
+<p>Diseñar e implementar en Oracle una base de datos para la reserva de espacios universitarios que garantice la integridad de
+los datos y registre automáticamente todos sus cambios. Sobre ella se construye una aplicación web que permite administrar la
+información y consultar ese historial.</p>
+
+<h3>1.3 Objetivos específicos</h3>
+<ol>
+  <li>Diseñar el modelo relacional y documentarlo con su diagrama y su diccionario de datos.</li>
+  <li>Implementar la base de datos en Oracle con sus restricciones y con más de 10 registros por tabla, y preparar los scripts de
+      respaldo de la estructura y de los datos.</li>
+  <li>Diseñar una tabla de auditoría y una solución en PL/SQL que registre automáticamente cada inserción, actualización y
+      eliminación, con la fecha, el usuario y los datos anteriores y nuevos.</li>
+  <li>Construir una aplicación web con las operaciones de insertar, consultar, actualizar y eliminar (CRUD) sobre las tablas del
+      modelo, y un reporte de la auditoría por fecha.</li>
+  <li>Preparar datos de prueba, ejecutar las pruebas y documentar sus resultados con evidencias.</li>
+</ol>
+
+<h3>1.4 Alcance</h3>
+<p>El sistema administra facultades, usuarios, edificios, tipos de espacio, espacios, recursos y reservas. Además de las
+restricciones declarativas (llaves primarias y foráneas, UNIQUE y CHECK), aplica en la propia base de datos las reglas del
+negocio:</p>
+<ul>
+  <li>no permite dos reservas del mismo espacio con horarios que se crucen;</li>
+  <li>no deja superar la capacidad del espacio ni el máximo de horas definido para su tipo;</li>
+  <li>exige que la reserva quede dentro del horario de apertura del edificio;</li>
+  <li>solo permite reservar espacios disponibles, y solo a usuarios activos.</li>
+</ul>
+<p>Quedan fuera del alcance el inicio de sesión con contraseña, el envío de notificaciones y la publicación del sistema en un
+servidor. La aplicación pide a la persona su nombre de usuario solo para registrarlo en la auditoría; no lo usa para restringir
+permisos.</p>
 
 <h2>2. Entorno y herramientas</h2>
+<h3>2.1 Equipo de desarrollo</h3>
+<p>Todo el proyecto se desarrolló y probó en un computador con <b>Windows 11 Pro</b> y 15 GB de memoria RAM. La base de datos, la
+aplicación web y las pruebas se ejecutan en el mismo equipo (<code>localhost</code>), sin servicios externos.</p>
+
+<h3>2.2 Herramientas utilizadas</h3>
 <table>
-  <tr><th>Componente</th><th>Detalle</th></tr>
-  <tr><td>Motor de base de datos</td><td>Oracle AI Database 26ai Free, versión 23.26.4 (instalado en <code>D:\Oracle</code>)</td></tr>
-  <tr><td>Base de datos conectable</td><td><code>FREEPDB1</code>, servicio <code>localhost:1521/FREEPDB1</code></td></tr>
-  <tr><td>Base de datos del proyecto</td><td>Esquema <b><code>LM_RESERVASALAS</code></b> y tablespace <code>LM_RESERVASALAS_TS</code>.
-      El prefijo <b>LM</b> corresponde a las iniciales de los apellidos <b>L</b>ara y <b>M</b>alagón.</td></tr>
-  <tr><td>Lenguaje procedural</td><td>PL/SQL (paquete, triggers, bloque anónimo)</td></tr>
-  <tr><td>Cliente SQL</td><td>SQL*Plus (incluido con Oracle); también sirve SQL Developer</td></tr>
-  <tr><td>Respaldos</td><td>Scripts SQL con <code>DBMS_METADATA</code> y <code>DBMS_SQL</code>, y Oracle Data Pump (<code>expdp</code>)</td></tr>
-  <tr><td>Aplicación web</td><td>Node.js + Express + node-oracledb 6 (modo Thin), HTML/CSS/JavaScript</td></tr>
-  <tr><td>Diagrama y diccionario</td><td>draw.io (<code>.drawio</code>), PNG, Excel (<code>.xlsx</code>) y PDF, generados desde el diccionario de Oracle</td></tr>
+  <tr><th>Herramienta</th><th>Versión</th><th>Uso en el proyecto</th></tr>
+  <tr><td>Oracle AI Database 26ai Free</td><td>23.26.4</td><td>Motor de base de datos. Es la edición gratuita de Oracle: admite hasta
+      2 CPU, 2 GB de memoria y 12 GB de datos, suficiente para el proyecto. Se instaló en <code>D:\Oracle</code>.</td></tr>
+  <tr><td>PL/SQL</td><td>Incluido en Oracle</td><td>Paquete de auditoría, triggers de auditoría y de reglas del negocio, y bloque anónimo de consulta.</td></tr>
+  <tr><td>SQL*Plus</td><td>23.26.4</td><td>Ejecución de los scripts de creación, carga de datos, auditoría, respaldos y pruebas.</td></tr>
+  <tr><td>Oracle Data Pump (<code>expdp</code>)</td><td>23.26.4</td><td>Respaldo binario complementario de la estructura y de los datos.</td></tr>
+  <tr><td>Node.js</td><td>26.12.1</td><td>Entorno de ejecución del servidor de la aplicación web.</td></tr>
+  <tr><td>Express</td><td>4.22.3</td><td>Servidor web y API REST de la aplicación.</td></tr>
+  <tr><td>node-oracledb</td><td>6.10.0</td><td>Controlador oficial de Oracle para Node.js, en modo Thin: se conecta directamente a la base de datos sin instalar Oracle Client.</td></tr>
+  <tr><td>HTML, CSS y JavaScript</td><td>Estándar</td><td>Interfaz web, sin frameworks. Tipografía Host Grotesk, de Google Fonts.</td></tr>
+  <tr><td>draw.io (diagrams.net)</td><td>Formato <code>.drawio</code></td><td>Diagrama relacional editable; también se entrega como imagen PNG.</td></tr>
+  <tr><td>Python y openpyxl</td><td>3.14.7 y 3.1.5</td><td>Script que lee el diccionario de Oracle y genera el diagrama y el diccionario de datos en Excel.</td></tr>
+  <tr><td>Microsoft Edge</td><td>158</td><td>Generación de los PDF (documento y diccionario) y navegador en el que corren las pruebas automáticas.</td></tr>
+  <tr><td>Playwright y axe-core</td><td>1.65.1 y 4.14</td><td>Pruebas automáticas de extremo a extremo y análisis de accesibilidad.</td></tr>
+  <tr><td>Git y GitHub</td><td>2.55</td><td>Control de versiones y entrega de los archivos en el repositorio del proyecto.</td></tr>
 </table>
-<p class="nota">En Oracle, una «base de datos» de aplicación se implementa como un <b>esquema</b> (usuario) dentro de
-una base de datos conectable (PDB). Por eso el nombre con prefijo se aplica al esquema <code>LM_RESERVASALAS</code> y a su tablespace.</p>
+
+<h3>2.3 Configuración de la base de datos</h3>
+<table>
+  <tr><th>Parámetro</th><th>Valor</th></tr>
+  <tr><td>Base de datos conectable (PDB)</td><td><code>FREEPDB1</code></td></tr>
+  <tr><td>Cadena de conexión</td><td><code>localhost:1521/FREEPDB1</code></td></tr>
+  <tr><td>Juego de caracteres</td><td>AL32UTF8 (Unicode), para guardar tildes y eñes sin problemas</td></tr>
+  <tr><td>Esquema del proyecto</td><td><b><code>LM_RESERVASALAS</code></b></td></tr>
+  <tr><td>Tablespace</td><td><code>LM_RESERVASALAS_TS</code>: 100 MB iniciales que crecen de 20 en 20 MB hasta 1 GB</td></tr>
+  <tr><td>Privilegios del esquema</td><td>Iniciar sesión y crear tablas, vistas, secuencias, procedimientos, triggers, sinónimos y tipos. Para los respaldos con Data Pump, además, lectura y escritura en su directorio y el rol <code>DATAPUMP_EXP_FULL_DATABASE</code>.</td></tr>
+</table>
+<p>El nombre lleva como prefijo <b>LM</b>, las iniciales de los apellidos de los integrantes: <b>L</b>ara y <b>M</b>alagón.</p>
+<p class="nota">En Oracle, la base de datos de una aplicación se implementa como un <b>esquema</b> (un usuario dueño de sus tablas)
+dentro de una base de datos conectable. Por eso el nombre con el prefijo se aplica al esquema <code>LM_RESERVASALAS</code> y a su tablespace.</p>
+
+<h3>2.4 Organización de los archivos</h3>
+<table>
+  <tr><th>Carpeta</th><th>Contenido</th></tr>
+  <tr><td><code>01_diseno/</code></td><td>Diagrama relacional (<code>.drawio</code> y <code>.png</code>) y diccionario de datos (<code>.xlsx</code> y <code>.pdf</code>)</td></tr>
+  <tr><td><code>02_scripts/</code></td><td>Scripts SQL y PL/SQL numerados del 00 al 06, y los archivos <code>instalar_bd.bat</code> y <code>backup.bat</code></td></tr>
+  <tr><td><code>03_backups/</code></td><td>Respaldos generados: estructura sin datos y datos, en SQL y en Data Pump</td></tr>
+  <tr><td><code>04_app/</code></td><td>Aplicación web y sus pruebas automáticas (<code>tests/e2e/</code>)</td></tr>
+  <tr><td><code>05_pruebas/</code></td><td>Script de pruebas en SQL, sus resultados y las capturas de pantalla</td></tr>
+  <tr><td><code>06_documento/</code></td><td>Este documento, en HTML y en PDF</td></tr>
+</table>
 
 <h2 class="salto">3. Diseño de la base de datos</h2>
 <h3>3.1 Diagrama relacional</h3>
@@ -104,13 +165,13 @@ una base de datos conectable (PDB). Por eso el nombre con prefijo se aplica al e
 <table>
   <tr><th>Tabla</th><th>Propósito</th><th>Relaciones</th></tr>
   <tr><td>FACULTAD</td><td>Facultades y dependencias de la universidad.</td><td>1:N con USUARIO</td></tr>
-  <tr><td>USUARIO</td><td>Estudiantes, profesores, personal y administradores.</td><td>N:1 FACULTAD · 1:N RESERVA</td></tr>
-  <tr><td>EDIFICIO</td><td>Bloques del campus con su horario de apertura y cierre.</td><td>1:N ESPACIO</td></tr>
-  <tr><td>TIPO_ESPACIO</td><td>Aula, sala de estudio, laboratorio, cabina…, con máximo de horas por reserva.</td><td>1:N ESPACIO</td></tr>
-  <tr><td>ESPACIO</td><td>Espacio físico reservable, con capacidad y estado.</td><td>N:1 EDIFICIO · N:1 TIPO_ESPACIO · 1:N RESERVA · N:M RECURSO</td></tr>
-  <tr><td>RECURSO</td><td>Catálogo de equipos (videobeam, computadores, sonido…).</td><td>N:M ESPACIO</td></tr>
-  <tr><td>ESPACIO_RECURSO</td><td>Tabla intermedia N:M con la cantidad de cada recurso por espacio (PK compuesta).</td><td>N:1 ESPACIO (borrado en cascada) · N:1 RECURSO</td></tr>
-  <tr><td>RESERVA</td><td>Reserva de un espacio por un usuario en una franja horaria del mismo día.</td><td>N:1 USUARIO · N:1 ESPACIO</td></tr>
+  <tr><td>USUARIO</td><td>Estudiantes, profesores, personal y administradores.</td><td>N:1 con FACULTAD; 1:N con RESERVA</td></tr>
+  <tr><td>EDIFICIO</td><td>Bloques del campus con su horario de apertura y cierre.</td><td>1:N con ESPACIO</td></tr>
+  <tr><td>TIPO_ESPACIO</td><td>Aula, sala de estudio, laboratorio, cabina…, con máximo de horas por reserva.</td><td>1:N con ESPACIO</td></tr>
+  <tr><td>ESPACIO</td><td>Espacio físico reservable, con capacidad y estado.</td><td>N:1 con EDIFICIO y con TIPO_ESPACIO; 1:N con RESERVA; N:M con RECURSO</td></tr>
+  <tr><td>RECURSO</td><td>Catálogo de equipos (videobeam, computadores, sonido…).</td><td>N:M con ESPACIO</td></tr>
+  <tr><td>ESPACIO_RECURSO</td><td>Tabla intermedia N:M con la cantidad de cada recurso por espacio (PK compuesta).</td><td>N:1 con ESPACIO (borrado en cascada) y con RECURSO</td></tr>
+  <tr><td>RESERVA</td><td>Reserva de un espacio por un usuario en una franja horaria del mismo día.</td><td>N:1 con USUARIO y con ESPACIO</td></tr>
   <tr><td>AUDITORIA</td><td>Historial de todos los cambios de las tablas anteriores.</td><td>Sin FK (registra cualquier tabla)</td></tr>
 </table>
 <p>El modelo está en tercera forma normal: cada atributo depende solo de la llave de su tabla (por ejemplo, el horario
@@ -126,8 +187,8 @@ espacios y recursos se resuelve con la tabla intermedia <code>ESPACIO_RECURSO</c
   <tr><td>CHECK</td><td>Formato de correo y de documento (expresiones regulares), valores permitidos de tipo de usuario y de estados,
       pisos 1–30, horas 0–24 con apertura &lt; cierre, capacidad 1–1000, máximo de horas 1–12, fin &gt; inicio y mismo día, asistentes &gt; 0.</td></tr>
   <tr><td>DEFAULT / NOT NULL</td><td>Estado ACTIVO, DISPONIBLE o PENDIENTE; fechas de registro con <code>SYSDATE</code>; campos obligatorios NOT NULL.</td></tr>
-  <tr><td>Trigger de reglas (<code>TRG_RESERVA_REGLAS</code>)</td><td>R1 doble reserva (ORA-20001) · R2 capacidad (-20002) · R3 máximo de horas (-20003) ·
-      R4 horario del edificio (-20004) · R5 espacio disponible y usuario activo (-20005).</td></tr>
+  <tr><td>Trigger de reglas (<code>TRG_RESERVA_REGLAS</code>)</td><td>Cinco reglas, cada una con su código de error: doble reserva (ORA-20001), capacidad (ORA-20002), máximo de horas (ORA-20003),
+      horario del edificio (ORA-20004) y espacio disponible con usuario activo (ORA-20005).</td></tr>
 </table>
 <p>El trigger de reglas es de nivel <b>sentencia</b> (<code>AFTER INSERT OR UPDATE ON RESERVA</code>): revisa la tabla completa
 después de cada sentencia. Así evita el error de tabla mutante (ORA-04091), que aparece si un trigger de fila consulta su propia
@@ -189,6 +250,16 @@ Trigger TRG_AUD_EDIFICIO creado.  ...  Trigger TRG_AUD_USUARIO creado.   (8 trig
 Vista creada.  Vista creada.</pre>
 <p>Todas las tablas superan los 10 registros pedidos. Los datos cubren todos los tipos de usuario y de espacio y los cuatro estados de reserva,
 con reservas pasadas y futuras. Además hay un espacio en mantenimiento y un usuario inactivo, que sirven para probar las reglas.</p>
+<p>Los conteos de arriba son los de la carga inicial. Después, las pruebas de las secciones 7.1 y 7.2 agregaron y modificaron registros. El estado
+final de la base de datos, que es el que contienen los respaldos entregados, es este:</p>
+<table>
+  <tr><th>Tabla</th><th>Registros</th><th>Tabla</th><th>Registros</th></tr>
+  <tr><td>FACULTAD</td><td>12</td><td>RECURSO</td><td>12</td></tr>
+  <tr><td>USUARIO</td><td>15</td><td>ESPACIO_RECURSO</td><td>23</td></tr>
+  <tr><td>EDIFICIO</td><td>12</td><td>RESERVA</td><td>22</td></tr>
+  <tr><td>TIPO_ESPACIO</td><td>12</td><td>AUDITORIA</td><td>116</td></tr>
+  <tr><td>ESPACIO</td><td>15</td><td></td><td></td></tr>
+</table>
 
 <h3>4.2 Respaldos</h3>
 <table>
@@ -296,20 +367,37 @@ que no necesita Oracle Client, y una interfaz web en HTML, CSS y JavaScript. Su 
       foráneas aparecen como listas desplegables con texto legible y los valores permitidos de los CHECK como listas de opciones. La PK compuesta de
       ESPACIO_RECURSO también está soportada.</li>
   <li><b>Validación en dos niveles:</b> en el navegador (obligatorios, rangos, patrones) y en Oracle, que es la autoridad: restricciones y trigger de
-      reglas. La app traduce los errores ORA a mensajes claros, por ejemplo «Doble reserva: el espacio ya está reservado…».</li>
-  <li><b>Quién hizo el cambio:</b> el usuario escribe su nombre arriba a la derecha. En cada petición el servidor lo asigna a la sesión de Oracle
+      reglas. La app traduce los errores ORA a mensajes claros, por ejemplo «Doble reserva: la sala ya está reservada en ese horario (se
+      cruza con la reserva 6)», y los muestra junto al campo que los causó.</li>
+  <li><b>Quién hizo el cambio:</b> la persona escribe su nombre de usuario arriba a la derecha. Si abre un formulario sin haberlo escrito, el
+      formulario lo pide en un campo propio. En cada petición el servidor asigna ese nombre a la sesión de Oracle
       (<code>connection.clientId</code> → <code>CLIENT_IDENTIFIER</code>) y el trigger lo guarda en <code>USUARIO_APP</code>.</li>
   <li><b>Reporte de auditoría por fecha:</b> filtros por rango de fechas, tabla, operación y usuario; totales por operación; cambios agrupados por día;
       detalle «antes / después» con las columnas modificadas resaltadas; impresión o PDF y exportación a CSV.</li>
   <li>Todas las sentencias usan variables de enlace (<i>bind variables</i>), lo que evita la inyección SQL. Los nombres de tablas y columnas solo
       salen de la lista de metadatos.</li>
 </ul>
-<h3>6.1 Diseño de la interfaz</h3>
+<h3>6.1 Servicios de la API</h3>
+<p>La interfaz no se conecta directamente a Oracle: todo pasa por estos servicios del servidor, que son los únicos que ejecutan SQL.</p>
+<table>
+  <tr><th>Método y ruta</th><th>Qué hace</th></tr>
+  <tr><td><code>GET /api/meta</code></td><td>Describe las tablas y columnas que maneja el CRUD (tipos, obligatorios, llaves foráneas)</td></tr>
+  <tr><td><code>GET /api/&lt;tabla&gt;?q=texto</code></td><td>Consulta los registros de una tabla, con búsqueda opcional</td></tr>
+  <tr><td><code>POST /api/&lt;tabla&gt;</code></td><td>Inserta un registro y devuelve su número</td></tr>
+  <tr><td><code>PUT /api/&lt;tabla&gt;/&lt;id&gt;</code></td><td>Actualiza un registro (en la llave compuesta, el id es <code>espacio~recurso</code>)</td></tr>
+  <tr><td><code>DELETE /api/&lt;tabla&gt;/&lt;id&gt;</code></td><td>Elimina un registro</td></tr>
+  <tr><td><code>GET /api/opciones/&lt;tabla&gt;/&lt;columna&gt;</code></td><td>Opciones de las listas desplegables de llaves foráneas</td></tr>
+  <tr><td><code>GET /api/agenda?dia=AAAA-MM-DD</code></td><td>Salas y reservas de un día, para el tablero de ocupación</td></tr>
+  <tr><td><code>GET /api/estado</code></td><td>Cifras del inicio: conteos por tabla, reservas activas y próximas, salas más solicitadas</td></tr>
+  <tr><td><code>GET /api/auditoria?desde&amp;hasta&amp;tabla&amp;operacion&amp;usuario</code></td><td>Reporte de auditoría filtrado por fechas y, si se quiere, por tabla, operación o usuario</td></tr>
+</table>
+
+<h3>6.2 Diseño de la interfaz</h3>
 <p>La interfaz toma la identidad visual de la <b>Fundación Universitaria Konrad Lorenz</b>, sin usar su logo oficial. El morado institucional
 (<code>#4A1760</code>) da la estructura: el menú lateral y los encabezados de las tablas. El lima (<code>#CCED00</code>) marca la sección activa y las
 reservas pendientes; solo se usa sobre morado, porque sobre blanco no tiene contraste suficiente. El magenta (<code>#C8105A</code>) es el color de la
-acción principal. Toda la interfaz usa una sola tipografía, <b>Host Grotesk</b>, la misma del sitio de la universidad. Partimos de la guía
-<i>UI/UX Pro Max</i> y luego quitamos los rasgos de plantilla genérica (degradados, iconos en cuadritos de color, etiquetas en mayúsculas).</p>
+acción principal. Toda la interfaz usa una sola tipografía, <b>Host Grotesk</b>, la misma del sitio de la universidad. Las decisiones de
+usabilidad y accesibilidad se tomaron con la guía de diseño <i>UI/UX Pro Max</i>.</p>
 <ul>
   <li><b>Logo propio:</b> una puerta construida con facetas en magenta, lima y petróleo, con el pomo en morado. Recuerda las facetas de la «K» de la
       universidad sin copiarla.</li>
@@ -435,6 +523,9 @@ Se ejecutan en dos perfiles, escritorio (1366 px) y celular (375 px), con un sol
       IDENTITY invalidan los triggers y las vistas, así que el respaldo de datos ahora los recompila al final.</li>
   <li>Las pruebas también encontraron y corrigieron un error sutil de NULL: una comparación <code>NOT (a = b)</code> no detecta el paso de NULL a un valor.
       Fue una buena lección sobre la lógica de tres valores de SQL.</li>
+  <li>Las pruebas automáticas con Playwright revisaron la aplicación como la usaría una persona y encontraron errores que no se veían al probar a
+      mano, sobre todo de accesibilidad: un formulario del que no se podía salir y un tablero invisible para los lectores de pantalla. Repetirlas
+      después de cada cambio da confianza en que lo que ya funcionaba sigue funcionando.</li>
 </ul>
 
 <h2>9. Anexos: entregables y ejecución</h2>
@@ -452,16 +543,22 @@ Se ejecutan en dos perfiles, escritorio (1366 px) y celular (375 px), con un sol
   <tr><td>5</td><td>Pruebas automáticas con Playwright (38 pruebas)</td><td><code>04_app/tests/e2e/</code></td></tr>
 </table>
 <h3>Cómo ejecutar</h3>
-<pre class="term">REM 1. Crear la base de datos completa
+<p><b>Requisitos:</b> Oracle Database Free con su servicio iniciado, Node.js y, para las pruebas automáticas, Microsoft Edge. Antes de
+empezar, en <code>04_app</code> se copia <code>.env.example</code> como <code>.env</code> y se escribe la clave del esquema. Las claves reales no
+se entregan en el repositorio.</p>
+<pre class="term">REM 1. Crear la base de datos completa (esquema, tablas, datos, auditoría y vistas)
 02_scripts\instalar_bd.bat
 
-REM 2. Generar respaldos
+REM 2. Generar los respaldos de estructura y de datos
 02_scripts\backup.bat
 
 REM 3. Aplicación web  ->  http://localhost:3000
 cd 04_app
 npm install
-npm start</pre>
+npm start
+
+REM 4. Pruebas automáticas (con Oracle encendido)
+npm run test:e2e</pre>
 <p><b>Enlace de los adjuntos:</b> todos los entregables están en el repositorio público <a href="https://github.com/Hatchedbot/ReservaSalasBD2">https://github.com/Hatchedbot/ReservaSalasBD2</a>, en la rama <code>main</code>, con la misma estructura de carpetas de la tabla anterior.</p>
 </section>
 </body>
